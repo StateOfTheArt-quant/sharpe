@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sharpe.mod.events import EVENT
+from sharpe.core.events import EVENT
 
 class Strategy(object):
     

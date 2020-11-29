@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from sharpe.mod.events import EventBus
+from sharpe.core.events import EventBus
 
 class Context(object):
     """serve as a global variable, prodiving context to different module"""

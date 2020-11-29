@@ -8,8 +8,8 @@ from typing import Dict, List,Tuple, Optional, Union
 
 from sharpe.utils import merge_dicts
 from sharpe.utils.repr import PropertyReprMeta
-from sharpe.mod.events import EVENT
-from sharpe.context import Context
+from sharpe.core.events import EVENT
+from sharpe.core.context import Context
 from sharpe.const import DEFAULT_ACCOUNT_TYPE
 from .account import Account
 

@@ -5,7 +5,7 @@ import math
 import numpy as np
 from itertools import chain
 from typing import Dict, List, Optional, Union
-from sharpe.context import Context
+from sharpe.core.context import Context
 from sharpe.const import (DEFAULT_ACCOUNT_TYPE, ORDER_TYPE, POSITION_DIRECTION,
                            POSITION_EFFECT, SIDE)
 from sharpe.object.order import LimitOrder, MarketOrder, Order, OrderStyle

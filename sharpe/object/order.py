@@ -8,7 +8,7 @@ from datetime import datetime
 from sharpe.const import ORDER_STATUS, ORDER_TYPE, SIDE, POSITION_EFFECT, POSITION_DIRECTION
 from sharpe.utils import id_gen, decimal_rounding_floor, get_position_direction
 from sharpe.utils.repr import property_repr, properties
-from sharpe.context import Context
+from sharpe.core.context import Context
 
 class Order(object):
 

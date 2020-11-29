@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from sharpe.context import Context
-from sharpe.mod.events import Event, EVENT
+from sharpe.core.context import Context
+from sharpe.core.events import Event, EVENT
 
 class SimulationEventSource(object):
     

@@ -4,8 +4,8 @@ import six
 from itertools import chain
 from typing import Dict, List,Tuple, Optional, Union, Iterable
 from sharpe.const import POSITION_DIRECTION, POSITION_EFFECT
-from sharpe.mod.events import EVENT
-from sharpe.context import Context
+from sharpe.core.events import EVENT
+from sharpe.core.context import Context
 
 from sharpe.mod.sys_account.position import Position, PositionProxyDict
 

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from sharpe.mod.event_source import SimulationEventSource
-from sharpe.context import Context
-from sharpe.executor import Executor
+from sharpe.mod.sys_simulation.event_source import SimulationEventSource
+from sharpe.core.context import Context
+from sharpe.core.executor import Executor
 from sharpe.mod.sys_account import Portfolio
-from sharpe.strategy import Strategy
+from sharpe.core.strategy import Strategy
 
 class TradingEnv(object):
     
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     
     env= TradingEnv(data_source=data_source, look_backward_window=2)
     print('--------------------------------------------')
-    from sharpe.context import Context
+    from sharpe.core.context import Context
     print("current context \n",Context.get_instance().__dict__)
     
     

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date
 from collections import UserDict
-from sharpe.context import Context
+from sharpe.core.context import Context
 from sharpe.utils import is_valid_price
 from sharpe.utils.repr import property_repr, PropertyReprMeta
 from sharpe.const import INSTRUMENT_TYPE, POSITION_DIRECTION, POSITION_EFFECT, INST_TYPE_IN_STOCK_ACCOUNT

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from copy import copy
-from sharpe.mod.events import Event, EVENT
+from sharpe.core.events import Event, EVENT
 
 
 class Executor(object):

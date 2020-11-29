@@ -37,7 +37,7 @@ class DataSource(object):
     def get_availabel_order_book_ids(self):
         return self.order_book_ids_index
     
-    def instrument(self, order_book_id):
+    def instrument_type(self, order_book_id):
         return "CS" # common stock
 
 
