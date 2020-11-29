@@ -42,9 +42,15 @@ class Context(object):
     def set_event_source(self, event_source):
         self.event_source = event_source
     
+    def set_portfolio(self, portfolio):
+        self.portfolio = portfolio
     
     def get_last_price(self, order_book_id:str) -> float:
-        return self.data_source(order_book_id = order_book_id, dt = self.trading_dt)
+        return self.data_source.get_last_price(order_book_id = order_book_id, dt = self.trading_dt)
+    
+    
+    def history_bars(self):
+        return self.data_source.history_bars(order_book_ids=self.availabel_order_book_ids, dt=self.trading_dt, bar_count=self.look_backward_window)
     
     def update_time(self, calendar_dt:datetime, trading_dt:datetime) -> None:
         self.calendar_dt = calendar_dt
@@ -54,6 +60,10 @@ class Context(object):
         raw_availabel_trading_dts = self.data_source.get_available_trading_dts()
         self.availabel_trading_dts =  raw_availabel_trading_dts[self.look_backward_window-1:]
         return self.availabel_trading_dts
+    
+    @property
+    def availabel_order_book_ids(self):
+        return self.data_source.get_availabel_order_book_ids()
     
     def get_next_trading_dt(self):
         current_idx = self.availabel_trading_dts.searchsorted(self.trading_dt, side="left")

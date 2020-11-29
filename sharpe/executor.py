@@ -16,11 +16,11 @@ class Executor(object):
     def __init__(self, context):
         self._context = context
         self._last_before_trading = None
-        self.availabel_trading_dts = self._context.get_available_trading_dts()
+        self.available_trading_dts = self._context.get_available_trading_dts()
         
-        self._events_container = self._context.event_source.events(trading_dts = self.availabel_trading_dts) 
+        self._events_container = self._context.event_source.events(trading_dts = self.available_trading_dts) 
         #temp operation
-        self._context.trading_dt =  self.availabel_trading_dts[0]
+        self._context.trading_dt =  self.available_trading_dts[0]
     
     def send(self, action):
         
