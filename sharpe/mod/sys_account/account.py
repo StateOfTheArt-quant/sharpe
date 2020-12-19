@@ -52,7 +52,7 @@ class Account:
         event_bus.add_listener(EVENT.PRE_BEFORE_TRADING, self._on_before_trading)
         event_bus.add_listener(EVENT.SETTLEMENT, self._on_settlement)
 
-        event_bus.prepend_listener(EVENT.BAR, self._update_last_price)
+        event_bus.prepend_listener(EVENT.PRE_BAR, self._update_last_price)
         
     def get_state(self):
         return {
@@ -236,7 +236,10 @@ class Account:
 
         for order_book_id, positions in list(self._positions.items()):
             for position in six.itervalues(positions):
+                #print(trading_date)
+                #print(position)
                 delta_cash = position.settlement(trading_date)
+                #print(delta_cash)
                 self._total_cash += delta_cash
 
         for order_book_id, positions in list(self._positions.items()):
@@ -315,11 +318,15 @@ class Account:
 
     def _update_last_price(self, _):
         context = Context.get_instance()
+        #print("_update_last_price", context.trading_dt)
         for order_book_id, positions in self._positions.items():
             price = context.get_last_price(order_book_id)
             if price == price:
                 for position in six.itervalues(positions):
+                    #print("before update last price \n {}".format(position))
                     position.update_last_price(price)
+                    #print("current price:{} of {} \n after update,position {}".format(price, order_book_id, position))
+        #print(context.portfolio)
 
     def _frozen_cash_of_order(self, order):
         #context = Context.get_instance()

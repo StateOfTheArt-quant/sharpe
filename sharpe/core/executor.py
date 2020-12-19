@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from copy import copy
 from sharpe.core.events import Event, EVENT
-
+import pdb
 
 class Executor(object):
     
@@ -20,7 +20,8 @@ class Executor(object):
         
         self._events_container = self._context.event_source.events(trading_dts = self.available_trading_dts) 
         #temp operation
-        self._context.trading_dt =  self.available_trading_dts[0]
+        #self._context.trading_dt =  self.available_trading_dts[0]
+        self._context.update_time(calendar_dt=self.available_trading_dts[0], trading_dt=self.available_trading_dts[0])
     
     def send(self, action):
         
@@ -38,17 +39,24 @@ class Executor(object):
                 self._env.event_bus.publish_event(event)
         
         self._split_and_publish(Event(EVENT.SETTLEMENT))
-        #portfolio = Context.get_instance().get_portfolio()
-        reward, is_done, info = 1,1,1,#portfolio.get_bar_info()
+        portfolio = self._context.portfolio
+        
+        reward = portfolio.daily_returns
+        
+        if self._context.trading_dt == self.available_trading_dts[-1]:
+            is_done = True
+        else:
+            is_done = False
+        info = {}
         return reward, is_done, info
     
     def _ensure_before_trading(self, event):
         # return True if before_trading won't run this time
         if self._last_before_trading == event.trading_dt:
             return True
-        #if self._last_before_trading:
-            # don't publish settlement on first date(time)
-        #    self._split_and_publish(Event(EVENT.SETTLEMENT))
+        if self._last_before_trading:
+            #don't publish settlement on first date(time)
+            self._split_and_publish(Event(EVENT.SETTLEMENT))
         self._last_before_trading = event.trading_dt
         self._split_and_publish(Event(EVENT.BEFORE_TRADING, calendar_dt=event.calendar_dt, trading_dt=event.trading_dt))
         return False    
@@ -66,6 +74,43 @@ class Executor(object):
             e = copy(event)
             e.event_type = event_type
             self._context.event_bus.publish_event(e)
+
+
+class RLExecutor(object):
+
+    def __init__(self, context):
+        self._context = context
+        self._last_before_trading = None
+        self.available_trading_dts = self._context.get_available_trading_dts()
+        
+        self._events_container = self._context.event_source._rl_events(trading_dts = self.available_trading_dts) 
+        #temp operation
+        self._context.update_time(calendar_dt=self.available_trading_dts[0], trading_dt=self.available_trading_dts[0])
+    
+
+    def send(self, action):
+        
+        for event in self._events_container[self._context.trading_dt]:
+            
+            if event.event_type == EVENT.BAR:
+                event.action = action
+            
+            if event.event_type == EVENT.PRE_BEFORE_TRADING:
+                self._context.update_time(calendar_dt=event.calendar_dt, trading_dt=event.trading_dt)
+            self._context.event_bus.publish_event(event)
+        
+        tracker = self._context.tracker
+        reward = tracker.reward
+        
+        if self._context.trading_dt == self.available_trading_dts[-1]:
+            is_done = True
+        else:
+            is_done = False
+        info = {}
+        return reward, is_done, info
+
+
+
 
 if __name__ == "__main__":
     from sharpe.utils.mock_data import create_toy_feature

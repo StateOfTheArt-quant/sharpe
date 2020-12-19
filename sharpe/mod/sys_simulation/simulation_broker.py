@@ -5,20 +5,21 @@ from sharpe.const import MATCHING_TYPE, INSTRUMENT_TYPE
 from typing import Dict, List,Tuple, Optional, Union, Iterable
 from sharpe.interface import AbstractBroker
 from sharpe.const import POSITION_EFFECT, ORDER_STATUS
-from sharpe.core.event import EVENT, Event
+from sharpe.core.events import EVENT, Event
 from sharpe.mod.sys_simulation.matcher import DefaultMatcher
 
 class SimulationBroker(AbstractBroker):
-    def __init__(self, context, mod_config):
+    def __init__(self, context, matching_type=MATCHING_TYPE.CURRENT_BAR_CLOSE):
         self._context = context
-        self._mod_config = mod_config
+        self.matching_type = matching_type
 
         self._matchers = {} 
 
-        self._match_immediately = mod_config.matching_type == MATCHING_TYPE.CURRENT_BAR_CLOSE
+        self._match_immediately = matching_type == MATCHING_TYPE.CURRENT_BAR_CLOSE
 
         self._open_orders = []  
         self._delayed_orders = []
+        self._open_exercise_orders = []
 
         self._context.event_bus.add_listener(EVENT.BEFORE_TRADING, self.before_trading)
         # to match the unfilled order in the following bars
@@ -32,7 +33,7 @@ class SimulationBroker(AbstractBroker):
         try:
             return self._matchers[instrument_type]
         except KeyError:
-            return self._matchers.setdefault(instrument_type, DefaultMatcher(self._env, self._mod_config))
+            return self._matchers.setdefault(instrument_type, DefaultMatcher(self._context, self.matching_type))
 
     def register_matcher(self, instrument_type, matcher):
         self._matchers[instrument_type] = matcher
@@ -46,7 +47,7 @@ class SimulationBroker(AbstractBroker):
     def submit_order(self, order):
         if order.position_effect == POSITION_EFFECT.MATCH:
             raise TypeError("unsupported position_effect {}".format(order.position_effect))
-        account = self._env.get_account(order.order_book_id)
+        account = self._context.get_account(order.order_book_id)
         self._context.event_bus.publish_event(Event(EVENT.ORDER_PENDING_NEW, account=account, order=order))
         if order.is_final():
             return
@@ -56,7 +57,7 @@ class SimulationBroker(AbstractBroker):
             return
         self._open_orders.append((account, order))
         order.active()
-        self._env.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=order))
+        self._context.event_bus.publish_event(Event(EVENT.ORDER_CREATION_PASS, account=account, order=order))
         if self._match_immediately:
             self._match()
 

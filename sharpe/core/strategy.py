@@ -15,4 +15,3 @@ class Strategy(object):
         to_submit_orders = event.action
         for order in to_submit_orders:
             self._context.broker.submit_order(order)
-    

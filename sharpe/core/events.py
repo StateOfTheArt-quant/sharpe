@@ -19,19 +19,16 @@ class EventBus(object):
         self._user_listeners = defaultdict(list)
 
     def add_listener(self, event_type, listener, user=False):
-        print("add_listener: {} - {}".format(event_type, listener))
         (self._user_listeners if user else self._listeners)[event_type].append(listener)
 
     def prepend_listener(self, event_type, listener, user=False):
         (self._user_listeners if user else self._listeners)[event_type].insert(0, listener)
 
     def publish_event(self, event):
-        print("publishing event: {}".format(event))
         for listener in self._listeners[event.event_type]:
             # if return True, then break, would not continue this event
-            print("listener: \n",listener) # event
-            #if listener(event):
-            #    break
+            if listener(event):
+                break
 
         for listener in self._user_listeners[event.event_type]:
             listener(event)

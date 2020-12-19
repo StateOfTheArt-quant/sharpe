@@ -34,7 +34,7 @@ class DataSource(object):
     def get_available_trading_dts(self):
         return self.trading_dts_index
     
-    def get_availabel_order_book_ids(self):
+    def get_available_order_book_ids(self):
         return self.order_book_ids_index
     
     def instrument_type(self, order_book_id):

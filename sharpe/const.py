@@ -107,6 +107,13 @@ class MARKET(CustomEnum):
     CN = "CN"
     HK = "HK"
 
+class HEDGE_TYPE(CustomEnum):
+    HEDGE = "hedge"
+    SPECULATION = "speculation"
+    ARBITRAGE = "arbitrage"
 
+class COMMISSION_TYPE(CustomEnum):
+    BY_MONEY = "BY_MONEY"
+    BY_VOLUME = "BY_VOLUME"
 
 

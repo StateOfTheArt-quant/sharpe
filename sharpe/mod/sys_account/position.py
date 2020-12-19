@@ -143,8 +143,8 @@ class Position(object, metaclass=PositionMeta):
     @property
     def last_price(self):
         if self._last_price != self._last_price:
-            env = Context.get_instance()
-            self._last_price = env.data_source.get_last_price(self._order_book_id)
+            context = Context.get_instance()
+            self._last_price = context.get_last_price(self._order_book_id)
             if self._last_price != self._last_price:
                 raise RuntimeError("last price of position {} is not supposed to be nan".format(self._order_book_id))
         return self._last_price
@@ -319,13 +319,14 @@ class StockPosition(Position):
 
     def settlement(self, trading_date):
         # type: (date) -> float
-        super(StockPosition, self).settlement(trading_date)
-
+        output = super(StockPosition, self).settlement(trading_date)
+         
         if self.quantity == 0:
             return 0
         if self.direction != POSITION_DIRECTION.LONG:
             raise RuntimeError("direction of stock position {} is not supposed to be short".format(self._order_book_id))
-        
+        delta_cash = 0
+        return delta_cash 
     @property
     def _market_tplus(self):
         return 0#self._instrument.market_tplus

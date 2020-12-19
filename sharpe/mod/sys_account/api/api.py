@@ -40,6 +40,7 @@ def order_target_portfolio(target_portfolio:Dict[str, float]) -> List[Order]:
                 order_book_id, target_percent
             ))
         price = context.get_last_price(order_book_id)
+        #print("trading_dt:{} current price: {}".format(context.trading_dt, price))
         if not is_valid_price(price):
             print("Order Creation Failed: [{order_book_id}] No market data".format(order_book_id=order_book_id))
             
@@ -76,6 +77,7 @@ def order_target_portfolio(target_portfolio:Dict[str, float]) -> List[Order]:
 
     to_submit_orders = []
     for order in chain(close_orders, open_orders):
-            to_submit_orders.append(order)
+        #print("to submit order: {}".format(order))
+        to_submit_orders.append(order)
     return to_submit_orders
 

@@ -14,10 +14,10 @@ class AbstractMatcher:
 
 
 class DefaultMatcher(AbstractMatcher):
-    def __init__(self, context, mod_config):
+    def __init__(self, context, matching_type):
         self._turnover = defaultdict(int)
         self._context = context 
-        self._deal_price_decider = self._create_deal_price_decider(mod_config.matching_type)
+        self._deal_price_decider = self._create_deal_price_decider(matching_type)
 
     def _create_deal_price_decider(self, matching_type):
         decider_dict = {
@@ -63,12 +63,11 @@ class DefaultMatcher(AbstractMatcher):
             frozen_price=order.frozen_price,
             close_today_amount=ct_amount
         )
-        trade._commission = self._env.get_trade_commission(trade)
-        trade._tax = self._env.get_trade_tax(trade)
+        trade._commission = self._context.get_trade_commission(trade)
+        trade._tax = self._context.get_trade_tax(trade)
         order.fill(trade)
         
         self._turnover[order.order_book_id] += fill
-
         self._context.event_bus.publish_event(Event(EVENT.TRADE, account=account, trade=trade, order=order))
 
         if order.type == ORDER_TYPE.MARKET and order.unfilled_quantity != 0:
