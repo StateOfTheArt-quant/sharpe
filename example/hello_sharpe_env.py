@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from sharpe.utils.mock_data import create_toy_feature
 from sharpe.data.data_source import DataSource
 from sharpe.environment import TradingEnv
@@ -9,8 +11,10 @@ random.seed(111)
 
 feature_df, price_s = create_toy_feature(order_book_ids_number=2, feature_number=3, start="2020-01-01", end="2020-01-11", random_seed=111)
 data_source = DataSource(feature_df=feature_df, price_s=price_s)
-    
-env= TradingEnv(data_source=data_source, look_backward_window=4, mode="rl")
+
+look_backward_window = 2    
+starting_cash = {"STOCK":1000000, "FUTURE":10000}
+env= TradingEnv(data_source=data_source, look_backward_window=2, starting_cash=starting_cash)
 print('--------------------------------------------')
 
 the_first_stock_id = data_source.get_available_order_book_ids()[0]
@@ -33,6 +37,12 @@ def your_strategy(state):
 
 state = env.reset()
 
+
+# action = your_strategy(state)
+
+# next_state, reward, done, info = env.step(action)
+
+
 while True:
     print("the current trading_dt is: {}".format(env.trading_dt))
     action = your_strategy(state)
@@ -45,3 +55,4 @@ while True:
         break
     else:
         state = next_state
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import gym
-
+import pdb
 from sharpe.mod.sys_simulation.event_source import SimulationEventSource
 from sharpe.core.context import Context
 from sharpe.core.events import Event, EVENT
@@ -17,7 +17,7 @@ class TradingEnv(gym.Env):
     def __init__(self, data_source,
                  look_backward_window=1, 
                  mode="non-rl",
-                 starting_cash = {"STOCK":1000000, "FUTURE":10000},
+                 starting_cash = {"STOCK":1000000},
                  commission_multiplier=1,
                  min_commission=5,
                  tax_multiplier=1) -> None:
@@ -71,6 +71,7 @@ class TradingEnv(gym.Env):
     def step(self, action):
         
         reward, is_done, info = self._executor.send(action)
+        #pdb.set_trace()
         next_state = Context.get_instance().history_bars()
         return next_state, reward, is_done, info
     

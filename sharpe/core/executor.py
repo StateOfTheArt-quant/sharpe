@@ -28,19 +28,12 @@ class Executor(object):
         for event in self._events_container[self._context.trading_dt]:
             
             if event.event_type == EVENT.BAR:
-                if self._ensure_before_trading(event):
-                    event.action = action
-                    self._split_and_publish(event)
-            elif event.event_type == EVENT.BEFORE_TRADING:
-                self._ensure_before_trading(event)
-            elif event.event_type == EVENT.AFTER_TRADING:
-                self._split_and_publish(event)
-            else:
-                self._env.event_bus.publish_event(event)
+                event.action = action
+            self._split_and_publish(event)
+ 
         
         self._split_and_publish(Event(EVENT.SETTLEMENT))
         portfolio = self._context.portfolio
-        
         reward = portfolio.daily_returns
         
         if self._context.trading_dt == self.available_trading_dts[-1]:
@@ -48,28 +41,17 @@ class Executor(object):
         else:
             is_done = False
         info = {}
+        
+        if is_done:
+            pass
+        else:             
+            next_trading_dt = self._context.get_next_trading_dt()
+            self._context.update_time(calendar_dt=next_trading_dt, trading_dt=next_trading_dt)
+        
         return reward, is_done, info
-    
-    def _ensure_before_trading(self, event):
-        # return True if before_trading won't run this time
-        if self._last_before_trading == event.trading_dt:
-            return True
-        if self._last_before_trading:
-            #don't publish settlement on first date(time)
-            self._split_and_publish(Event(EVENT.SETTLEMENT))
-        self._last_before_trading = event.trading_dt
-        self._split_and_publish(Event(EVENT.BEFORE_TRADING, calendar_dt=event.calendar_dt, trading_dt=event.trading_dt))
-        return False    
+        
     
     def _split_and_publish(self, event):
-        if not hasattr(event, "trading_dt"):
-            #FIXME
-            try:
-                next_trading_dt = self._context.get_next_trading_dt()
-            except Exception as e:
-                pass
-            else:
-                self._context.update_time(calendar_dt=next_trading_dt, trading_dt=next_trading_dt)
         for event_type in self.EVENT_SPLIT_MAP[event.event_type]:
             e = copy(event)
             e.event_type = event_type
