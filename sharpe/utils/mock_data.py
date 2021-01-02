@@ -24,7 +24,7 @@ def create_toy_feature(order_book_ids_number, feature_number, start="2020-01-01"
     price_list= []
     for i in range(order_book_ids_number):
         start_price = np.random.randint(100)
-        price = np.random.uniform(low = start_price, high = start_price+30, size = len(trading_datetime))
+        price = np.random.uniform(low = start_price, high = start_price+10, size = len(trading_datetime))
         price_list.append(price)
     
     price_all = np.hstack(price_list).round(decimals = 2)

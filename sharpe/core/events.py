@@ -25,7 +25,7 @@ class EventBus(object):
         (self._user_listeners if user else self._listeners)[event_type].insert(0, listener)
 
     def publish_event(self, event):
-        print("publishing event: {}".format(event))
+       
         for listener in self._listeners[event.event_type]:
             # if return True, then break, would not continue this event
             if listener(event):

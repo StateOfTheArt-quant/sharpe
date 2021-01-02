@@ -26,11 +26,19 @@ class DataSource(object):
     def get_last_price(self, order_book_id, dt):
         return self._price_s.loc[(order_book_id, dt)]
     
+    def get_previous_close(self, order_book_id, dt):
+        idx = self.trading_dts_index.searchsorted(dt)
+        prev_dt = self.trading_dts_index[idx-1]
+        return self._price_s.loc[(order_book_id, prev_dt)]
+    
     def get_available_trading_dts(self):
         return self.trading_dts_index
     
-    def get_availabel_order_book_ids(self):
+    def get_available_order_book_ids(self):
         return self.order_book_ids_index
+    
+    def instrument_type(self, order_book_id):
+        return "CS" # common stock
 
 
 
