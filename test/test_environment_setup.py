@@ -40,7 +40,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         self.assertEqual(actual_first_trading_dt, expected_first_trading_dt)
     
     
-        order_book_ids = self.data_source.get_availabel_order_book_ids()
+        order_book_ids = self.data_source.get_available_order_book_ids()
         
         expected_first_last_price = self.data_source.get_last_price(order_book_id=order_book_ids[0], dt=expected_first_trading_dt)
         actual_first_last_price = Context.get_instance().get_last_price(order_book_id=order_book_ids[0])
