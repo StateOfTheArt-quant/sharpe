@@ -124,5 +124,5 @@ Working on your first Pull Request? You can learn how from this free series `How
 ----------------------
 *sharpe* derived from our initial project `trading_gym <https://github.com/StateOfTheArt-quant/trading_gym>`_, which now is a event-driven(or observer) design pattern, the code highly inspired by `RQALPHA <https://github.com/ricequant/rqalpha>`_ 
 
-This library is named *sharpe* to remember and respect `William F. Sharpe <https://en.wikipedia.org/wiki/William_F._Sharpe>`_
+This library is named *sharpe* to respect `William F. Sharpe <https://en.wikipedia.org/wiki/William_F._Sharpe>`_
 
