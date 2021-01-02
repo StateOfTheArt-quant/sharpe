@@ -1,3 +1,4 @@
+|CI status|
 ================
 sharpe
 ================
@@ -126,3 +127,5 @@ Working on your first Pull Request? You can learn how from this free series `How
 
 This library is named *sharpe* to respect `William F. Sharpe <https://en.wikipedia.org/wiki/William_F._Sharpe>`_
 
+
+.. |CI status| image:: https://github.com/StateOfTheArt-quant/sharpe/workflows/unit-testing/badge.svg?branch=main
