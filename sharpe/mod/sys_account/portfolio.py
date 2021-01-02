@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+# refernece(to avoid chinese in repo)
+# https://github.com/ricequant/rqalpha/blob/master/rqalpha/portfolio/__init__.py
+
 import six
 import jsonpickle
 import numpy as np

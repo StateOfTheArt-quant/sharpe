@@ -29,18 +29,24 @@ class Executor(object):
             
             if event.event_type == EVENT.BAR:
                 event.action = action
-            self._split_and_publish(event)
- 
-        
+            self._split_and_publish(event)       
         self._split_and_publish(Event(EVENT.SETTLEMENT))
-        portfolio = self._context.portfolio
-        reward = portfolio.daily_returns
+ 
+        tracker = self._context.tracker
+        reward = tracker._portfolio_current_bar_returns[-1]
+
+        info = {}
+        info["returns_mean"] = tracker._returns_mean[-1]
+        info["unit_sharpe_ratio"] = tracker._unit_sharpe_ratio[-1]
+        info["draw_down"] = tracker._draw_down[-1]
+        info["max_draw_down"] = tracker._max_draw_down[-1]
+        
+        info["profit_and_loss"] = tracker._portfolio_current_bar_pnl[-1]
         
         if self._context.trading_dt == self.available_trading_dts[-1]:
             is_done = True
         else:
             is_done = False
-        info = {}
         
         if is_done:
             pass
@@ -82,13 +88,23 @@ class RLExecutor(object):
             self._context.event_bus.publish_event(event)
         
         tracker = self._context.tracker
-        reward = tracker.reward
+        reward = tracker._portfolio_forward_bar_returns[-1]
+        
+        info = {}
+        info["returns_mean"] = tracker._forward_bar_returns_mean[-1]
+        info["unit_sharpe_ratio"] = tracker._forward_bar_unit_sharpe_ratio[-1]
+        info["draw_down"]  = tracker._forward_bar_draw_down[-1]     
+        info["max_draw_down"] = tracker._forward_bar_max_draw_down[-1]
+        
+        info["profit_and_loss"] = tracker._portfolio_forward_bar_pnl[-1]
+        
+        
         
         if self._context.trading_dt == self.available_trading_dts[-1]:
             is_done = True
         else:
             is_done = False
-        info = {}
+        
         return reward, is_done, info
 
 
@@ -97,7 +113,7 @@ class RLExecutor(object):
 if __name__ == "__main__":
     from sharpe.utils.mock_data import create_toy_feature
     from sharpe.data.data_source import DataSource
-    from sharpe.context import Context
+    from sharpe.core.context import Context
     
     feature_df, price_s = create_toy_feature(order_book_ids_number=2, feature_number=3)
     data_source = DataSource(feature_df=feature_df, price_s=price_s)

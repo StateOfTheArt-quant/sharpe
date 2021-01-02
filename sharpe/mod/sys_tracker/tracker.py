@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import numbers
+import numpy as np
 from enum import Enum
 from sharpe.core.events import EVENT
+from sharpe.mod.sys_tracker.performance import calc_draw_down
 import pdb
 
 class Tracker(object):
@@ -11,11 +13,29 @@ class Tracker(object):
         self._context = context
         self._orders = []
         self._trades = []
-        self._portfolio_daily_returns = []
-        self._portfolio_forward_reward = []
+        self._total_portfolio = []
+        self._total_forward_portfolio = []
+        self._portfolio_current_bar_returns = []
+        self._portfolio_forward_bar_returns = []
+        self._portfolio_current_bar_pnl = []
+        self._portfolio_forward_bar_pnl =[]
+        
+        #extra performance stats
+        self._returns_mean= []
+        self._forward_bar_returns_mean = []
+        
+        self._unit_sharpe_ratio = []
+        self._forward_bar_unit_sharpe_ratio = []
+        
+        self._draw_down = []
+        self._forward_bar_draw_down = []
+        
+        self._max_draw_down = []
+        self._forward_bar_max_draw_down = []
         
         
         self._rl_static_unit_net_value = 1
+        self._rl_static_total_value = context.portfolio.total_value
         
         self._context.event_bus.add_listener(EVENT.POST_SYSTEM_INIT, self._subscribe_events)
     
@@ -33,12 +53,39 @@ class Tracker(object):
     
     def _collect_daily(self, event):
         portfolio = self._context.portfolio
-        self._portfolio_daily_returns.append(portfolio.daily_returns)
-    
+        self._portfolio_current_bar_returns.append(portfolio.daily_returns)#
+        self._portfolio_current_bar_pnl.append(portfolio.daily_pnl)
+        #
+        self._total_portfolio.append(self._to_portfolio_record(dt=self._context.trading_dt, portfolio=portfolio))
+        
+        #
+        performance_dict = self._to_performance(self._portfolio_current_bar_returns)
+        self._returns_mean.append(performance_dict["returns_mean"])
+        self._unit_sharpe_ratio.append(performance_dict["unit_sharpe_ratio"])
+        self._draw_down.append(performance_dict["current_draw_down"])
+        self._max_draw_down.append(performance_dict["max_draw_down"])
+        
     def _calculate_forward_reward(self, event):
         self.reward = self.rl_unit_net_value / self.rl_static_unit_net_value - 1
-        self._portfolio_forward_reward.append(self.reward)
+        self._portfolio_forward_bar_returns.append(self.reward)
+                
+        portfolio = self._context.portfolio
+        self.pnl = portfolio.total_value - self._rl_static_total_value
+        self._portfolio_forward_bar_pnl.append(self.pnl)
+        #important here
         self._rl_static_unit_net_value = self.rl_unit_net_value
+        self._rl_static_total_value = portfolio.total_value
+
+        
+        self._total_forward_portfolio.append(self._to_portfolio_record(dt=self._context.trading_dt, portfolio=portfolio))
+        #
+        performance_dict = self._to_performance(self._portfolio_forward_bar_returns)
+        self._forward_bar_returns_mean.append(performance_dict["returns_mean"])
+        self._forward_bar_unit_sharpe_ratio.append(performance_dict["unit_sharpe_ratio"])
+        self._forward_bar_draw_down.append(performance_dict["current_draw_down"])
+        self._forward_bar_max_draw_down.append(performance_dict["max_draw_down"])
+        
+
     
     @property
     def rl_static_unit_net_value(self):
@@ -46,6 +93,7 @@ class Tracker(object):
     
     @property
     def rl_unit_net_value(self):
+        # after update_last_price
         portfolio = self._context.portfolio 
         return portfolio.total_value / portfolio.units
     
@@ -77,5 +125,32 @@ class Tracker(object):
             'transaction_cost': trade.transaction_cost,
         }
     
+    def _to_portfolio_record(self, dt, portfolio):
+        return {
+            'datetime': dt,
+            'cash': self._safe_convert(portfolio.cash),
+            'total_value': self._safe_convert(portfolio.total_value),
+            'market_value': self._safe_convert(portfolio.market_value),
+            'unit_net_value': self._safe_convert(portfolio.unit_net_value, 6),
+            'units': portfolio.units,
+            'static_unit_net_value': self._safe_convert(portfolio.static_unit_net_value),
+        }
+    
+
         
+    def _to_performance(self, returns):
+        #
+        _returns_mean = np.mean(returns)
+        _returns_std = np.std(returns)
+        _unit_sharpe_ratio = _returns_mean / _returns_std
+        drawdown = calc_draw_down(returns)
+        
+        return {
+            "returns_mean": _returns_mean,
+            "unit_sharpe_ratio": _unit_sharpe_ratio,
+            "current_draw_down": abs(drawdown[-1]),
+            "max_draw_down": abs(drawdown.min())
+        }
+        
+
     

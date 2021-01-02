@@ -40,6 +40,7 @@ while True:
     next_state, reward, done, info = env.step(action)
     
     print("the reward of this action: {}".format(reward))
+    print("the extra info of this action: {}".format(info))
     print("the next state is \n {}".format(next_state))
     if done:
         break

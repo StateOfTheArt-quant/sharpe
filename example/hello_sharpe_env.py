@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from sharpe.utils.mock_data import create_toy_feature
 from sharpe.data.data_source import DataSource
 from sharpe.environment import TradingEnv

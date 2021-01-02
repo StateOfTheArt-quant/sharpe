@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import gym
 import pdb
+import pandas as pd
 from sharpe.mod.sys_simulation.event_source import SimulationEventSource
 from sharpe.core.context import Context
 from sharpe.core.events import Event, EVENT
@@ -11,6 +12,7 @@ from sharpe.core.strategy import Strategy
 from sharpe.mod.sys_simulation.simulation_broker import SimulationBroker
 from sharpe.mod.sys_transaction_cost.deciders import CNStockTransactionCostDecider
 from sharpe.mod.sys_tracker.tracker import Tracker 
+from sharpe.utils.plot.plot_performance import plot_performance
 
 class TradingEnv(gym.Env):
     
@@ -80,6 +82,15 @@ class TradingEnv(gym.Env):
         return self._context.trading_dt
     
     
+    def render(self):
+        if self.mode == "rl":
+            returns_list = self._context.tracker._portfolio_forward_bar_returns.copy()
+            returns_list.insert(0,0)
+            index = self._context.availabel_trading_dts
+            returns = pd.DataFrame(returns_list, index=index,columns=["unit_net_value"])
+            unit_net_value = (returns + 1).cumprod()
+            
+            plot_performance(unit_net_value)
     
 if __name__ == "__main__":
     from sharpe.utils.mock_data import create_toy_feature

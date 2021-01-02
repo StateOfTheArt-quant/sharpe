@@ -103,7 +103,9 @@ The following snippet showcases the whole workflow of trading strategy developme
                break
           else:
                state = next_state
+    env.render()
 
+.. image:: assets/images/unit_net_value.png
 
 4 Documentation
 ----------------------

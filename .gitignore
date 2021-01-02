@@ -273,3 +273,6 @@ dmypy.json
 # Cython debug symbols
 
 cython_debug/
+
+# plotly
+temp-plot.html
