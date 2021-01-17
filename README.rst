@@ -130,7 +130,7 @@ The following snippet showcases the whole workflow of trading strategy developme
 
 5 Examples
 ----------------------
-* `risk parity strategy <example/rule-based strategy/risk_parity_strategy.py>`_
+* `risk parity strategy <example/rule-based-strategy/risk_parity_strategy.py>`_
 
 6 Communication & Contributing
 -----------------------------------
