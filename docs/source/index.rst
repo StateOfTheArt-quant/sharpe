@@ -121,7 +121,7 @@ The following snippet showcases the whole workflow of trading strategy developme
                state = next_state
     env.render()
 
-.. image:: assets/images/unit_net_value.png
+.. image:: _static/img/unit_net_value.png
 
 
 5 Documentation
