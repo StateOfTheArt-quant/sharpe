@@ -58,7 +58,7 @@ trading decison can be viewed as a special case of sequential decision-making, w
 The goal of the agent is to find a good policy(strategy) to maximize its cumulative reward.
 
 
-followwing this concept framwork, *sharpe* re-conceptualize the process of trading and provide research with low-level, common tool to develop and backtest trading strategy.
+following this concept framwork, *sharpe* re-conceptualizes the process of trading and provides research with low-level, common tool to develop and backtest trading strategy.
 
 2 Install
 --------------------
