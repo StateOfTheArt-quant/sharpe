@@ -124,8 +124,13 @@ The following snippet showcases the whole workflow of trading strategy developme
 4 Documentation
 ----------------------
 
+* API documentation and an overview of the library: `https://sharpe.readthedocs.io/en/latest/ <https://sharpe.readthedocs.io/en/latest/>`_
+
+
+
 5 Examples
 ----------------------
+* `risk parity strategy <example/rule-based strategy/risk_parity_strategy.py>`_
 
 6 Communication & Contributing
 -----------------------------------

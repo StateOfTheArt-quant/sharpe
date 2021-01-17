@@ -86,11 +86,14 @@ class TradingEnv(gym.Env):
         if self.mode == "rl":
             returns_list = self._context.tracker._portfolio_forward_bar_returns.copy()
             returns_list.insert(0,0)
-            index = self._context.availabel_trading_dts
-            returns = pd.DataFrame(returns_list, index=index,columns=["unit_net_value"])
-            unit_net_value = (returns + 1).cumprod()
+        else:
+            returns_list = self._context.tracker._portfolio_current_bar_returns.copy()
+        #pdb.set_trace()
+        index = self._context.availabel_trading_dts
+        returns = pd.DataFrame(returns_list, index=index,columns=["unit_net_value"])
+        unit_net_value = (returns + 1).cumprod()
             
-            plot_performance(unit_net_value)
+        plot_performance(unit_net_value)
     
 if __name__ == "__main__":
     from sharpe.utils.mock_data import create_toy_feature
