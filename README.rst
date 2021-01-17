@@ -24,7 +24,7 @@ outline
 .. contents:: Table of Contents
     :local: 
 
-* `1 Additonal Feature <#1-Additonal Feature>`_
+* `1 Motivation and concept design <#1-Motivation and concept design>`_
 
 * `2 Install <#2-Install>`_
 
@@ -39,13 +39,26 @@ outline
 * `7 Acknowledgements <#7-Acknowledgements>`_
 
 
-1 Additonal Features
-------------------
-* Support rule-based and factor-based trading strategy backtesting
-* Helper functions for data/order management and rl algorithms.
-* Various environment wrappers(e.g. data type wrapper, support pandas, numpy, pytorch tensor)
-* Logging, visualization, and experiments management
-* Unit tested, continuously integrated
+1 Motivation and concept design
+--------------------------------------
+Before we walk through an end-to-end example how to backtest a trading stratey with **sharpe**, let’s take a step back and discuss and understand the difficuties encountering when design a backtest engine for quantitative trading, the answer derives from
+quantitative researchers own different trading philosophy, trade different instruments in different market with different trading frequency. 
+
+* **different trading philosophy**: rule-based methodology versus factor-based methodology(supervised learning versus reinforcement learning)
+* **different instruments in different market**: stock, index, ETF, future in different countries and market.
+* **different trading frequency**: intra-day traing(seconds, minutes, hours) and inter-day trading(daily, weekly, montly)
+
+trading decison can be viewed as a special case of sequential decision-making, which can be formalized as follows: at each timestamp
+ 
+* a agent sees a observation of the state of the environment, that the agent lives in and interacts with
+* and then decides on an action to take, based on a policy(can be also called strategy, a mapping from state to action)
+* The agent perceives a reward signal from the environment, a number that tells it how good or bad the current action is
+* see the observation of the next state, and iteratively
+
+The goal of the agent is to find a good policy(strategy) to maximize its cumulative reward.
+
+
+followwing this concept framwork, *sharpe* re-conceptualize the process of trading and provide research with low-level, common tool to develop and backtest trading strategy.
 
 2 Install
 --------------------
