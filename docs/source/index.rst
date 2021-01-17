@@ -1,4 +1,3 @@
-|CI status|
 ================
 sharpe
 ================
@@ -9,13 +8,9 @@ it's designed to allow maximum flexibility and simplicity in the practical resea
 
 **core features:**
 
-* unified: unify the supervised learning and reinforcement learning in a framework.
+* unified: unify the rule-based and factor-based trading methodology, supervised learning and reinforcement learning in a framework.
 * interactive: state(feature) -> action(portfolio-weight) -> reward(profit-and-loss/returns) bar-by-bar, allow maximum workflow control.
 * general-purpose: market-independent, instrument-independent, trading-frequency-independent.
-
-..
-  
-  *sharpe* is considered in early alpha release. Stuff might break.
 
 
 outline
@@ -26,17 +21,13 @@ outline
 
 * `1 Motivation and concept design <#1-Motivation and concept design>`_
 
-* `2 Install <#2-Install>`_
+* `2 Additional Features <#2-Additonal Features>`_
 
-* `3 Quick Start <#3-Quick Start>`_
+* `3 Install <#3-Install>`_
 
-* `4 Documentation <#4-Documentation>`_
+* `4 Quick Start <#4-Quick Start>`_
 
-* `5 Examples <#5-Examples>`_
-
-* `6 Communication & Contributing <#6-Communication & Contributing>`_
-
-* `7 Acknowledgements <#7-Acknowledgements>`_
+* `5 Documentation <#5-Documentation>`_
 
 
 1 Motivation and concept design
@@ -47,9 +38,10 @@ quantitative researchers own different trading philosophy, trade different instr
 * **different trading philosophy**: rule-based methodology versus factor-based methodology(supervised learning versus reinforcement learning)
 * **different instruments in different market**: stock, index, ETF, future in different countries and market.
 * **different trading frequency**: intra-day traing(seconds, minutes, hours) and inter-day trading(daily, weekly, montly)
+* **different data structure and dtypes**: cross-sectional data is used for explaining the cross-sectional variation in stock returns, time series data is used for timing strategy development, sequential data is used for sequencial-model, e.g. RNN and it variation algorithm. Besides, supervised learning algorithm and reinforcement learning need different data architecture.
 
-trading decison can be viewed as a special case of sequential decision-making, which can be formalized as follows: at each timestamp
- 
+trading decison can be viewed as a special case of sequential decision-making, which can be formalized as follows: at each timestamp, 
+
 * a agent sees a observation of the state of the environment, that the agent lives in and interacts with
 * and then decides on an action to take, based on a policy(can be also called strategy, a mapping from state to action)
 * The agent perceives a reward signal from the environment, a number that tells it how good or bad the current action is
@@ -58,9 +50,19 @@ trading decison can be viewed as a special case of sequential decision-making, w
 The goal of the agent is to find a good policy(strategy) to maximize its cumulative reward.
 
 
-following this concept framwork, *sharpe* re-conceptualizes the process of trading and provides research with low-level, common tool to develop and backtest trading strategy.
+followwing this concept framwork, *sharpe* re-conceptualize the process of trading and provide research with low-level, common tool to 
 
-2 Install
+
+2 Additonal Features
+------------------------
+* Support rule-based and factor-based trading strategy backtesting
+* Helper functions for data/order management and rl algorithms.
+* Various environment wrappers(e.g. data type wrapper, support pandas, numpy, pytorch tensor)
+* Logging, visualization, and experiments management
+* Unit tested, continuously integrated
+
+
+3 Install
 --------------------
 
 .. code-block:: bash
@@ -69,7 +71,7 @@ following this concept framwork, *sharpe* re-conceptualizes the process of tradi
     $ cd sharpe
     $ python setup.py install
 
-3 Quick Start
+4 Quick Start
 --------------------
 The following snippet showcases the whole workflow of trading strategy development in *sharpe*.
 
@@ -121,24 +123,25 @@ The following snippet showcases the whole workflow of trading strategy developme
 
 .. image:: assets/images/unit_net_value.png
 
-4 Documentation
-----------------------
 
-5 Examples
-----------------------
+5 Documentation
+---------------------------------
 
-6 Communication & Contributing
------------------------------------
+To get started, please, read :doc:`quickstart` and :doc:`concepts`.
 
-* email: yujiangallen@126.com
+.. toctree::
+   :maxdepth: 2
+   :caption: Notes
 
-Working on your first Pull Request? You can learn how from this free series `How to Contribute to an Open Source Project on GitHub <https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github>`_
-
-7 Acknowledgements
-----------------------
-*sharpe* derived from our initial project `trading_gym <https://github.com/StateOfTheArt-quant/trading_gym>`_, which now is a event-driven(or observer) design pattern, the code highly inspired by `RQALPHA <https://github.com/ricequant/rqalpha>`_ 
-
-This library is named *sharpe* to respect `William F. Sharpe <https://en.wikipedia.org/wiki/William_F._Sharpe>`_
+   quickstart
+   concepts
+   examples
+   faq
 
 
-.. |CI status| image:: https://github.com/StateOfTheArt-quant/sharpe/workflows/unit-testing/badge.svg?branch=main
+.. toctree::
+   :maxdepth: 1
+   :caption: Team
+
+   about
+
