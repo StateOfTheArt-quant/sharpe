@@ -96,11 +96,11 @@ The following snippet showcases the whole workflow of trading strategy developme
           here is a random strategy, only trade the first stock with a random target percent
           """
 
-          target_percent_of_postion =  round(random.random(),2)
-          target_pososition_dict = {company_id : target_percent_of_postion}
-          print("the target portfolio is to be: {}".format(target_pososition_dict))
+          target_percent_of_position =  round(random.random(),2)
+          target_position_dict = {company_id : target_percent_of_position}
+          print("the target portfolio is to be: {}".format(target_position_dict))
           # call trade API
-          action = order_target_portfolio(target_pososition_dict)
+          action = order_target_weights(target_position_dict)
           return action
 
 
