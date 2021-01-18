@@ -3,7 +3,7 @@
 from sharpe.utils.mock_data import create_toy_feature
 from sharpe.data.data_source import DataSource
 from sharpe.environment import TradingEnv
-from sharpe.mod.sys_account.api.api import order_target_portfolio
+from sharpe.mod.sys_account.api import order_target_weights
 import random
 random.seed(111)
 
@@ -27,7 +27,7 @@ def your_strategy(state):
     target_pososition_dict = {the_first_stock_id : target_percent_of_postion}
     print("the target portfolio is to be: {}".format(target_pososition_dict))
     # call trade API
-    action = order_target_portfolio(target_pososition_dict)
+    action = order_target_weights(target_pososition_dict)
     return action
 
 

@@ -42,18 +42,18 @@ outline
 1 Motivation and concept design
 --------------------------------------
 Before we walk through an end-to-end example how to backtest a trading stratey with **sharpe**, let’s take a step back and discuss and understand the difficuties encountering when design a backtest engine for quantitative trading, the answer derives from
-quantitative researchers own different trading philosophy, trade different instruments in different market with different trading frequency. 
+quantitative researchers own different types of trading philosophy, trade different types of instruments in different markets with different trading frequencies. 
 
-* **different trading philosophy**: rule-based methodology versus factor-based methodology(supervised learning versus reinforcement learning)
-* **different instruments in different market**: stock, index, ETF, future in different countries and market.
-* **different trading frequency**: intra-day traing(seconds, minutes, hours) and inter-day trading(daily, weekly, montly)
+* **different types of trading philosophy**: rule-based methodology versus factor-based methodology(supervised learning versus reinforcement learning)
+* **different types of instruments in different market**: stock, index, ETF, future in different countries and markets.
+* **different trading frequencies**: intra-day trading(seconds, minutes, hours) and inter-day trading(daily, weekly, montly)
 
 trading decison can be viewed as a special case of sequential decision-making, which can be formalized as follows: at each timestamp
  
 * a agent sees a observation of the state of the environment, that the agent lives in and interacts with
 * and then decides on an action to take, based on a policy(can be also called strategy, a mapping from state to action)
 * The agent perceives a reward signal from the environment, a number that tells it how good or bad the current action is
-* see the observation of the next state, and iteratively
+* sees the observation of the next state, and iteratively
 
 The goal of the agent is to find a good policy(strategy) to maximize its cumulative reward.
 
@@ -78,7 +78,7 @@ The following snippet showcases the whole workflow of trading strategy developme
      from sharpe.utils.mock_data import create_toy_feature
      from sharpe.data.data_source import DataSource
      from sharpe.environment import TradingEnv
-     from sharpe.mod.sys_account.api.api import order_target_portfolio
+     from sharpe.mod.sys_account.api import order_target_weights
      import random
      random.seed(111)
      

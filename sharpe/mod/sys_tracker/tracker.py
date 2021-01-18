@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import numbers
 import numpy as np
+import pandas as pd
 from enum import Enum
 from sharpe.core.events import EVENT
 from sharpe.mod.sys_tracker.performance import calc_draw_down
@@ -19,6 +20,7 @@ class Tracker(object):
         self._portfolio_forward_bar_returns = []
         self._portfolio_current_bar_pnl = []
         self._portfolio_forward_bar_pnl =[]
+        self.trading_dt_list = []
         
         #extra performance stats
         self._returns_mean= []
@@ -151,6 +153,11 @@ class Tracker(object):
             "current_draw_down": abs(drawdown[-1]),
             "max_draw_down": abs(drawdown.min())
         }
-        
+    
+    @property
+    def bar_returns(self) -> pd.Series:
+        bar_returns_list = self._portfolio_forward_bar_returns 
+        bar_reutrns_s = pd.Series(bar_returns_list, index=self._context.availabel_trading_dts[:len(bar_returns_list)])
+        return bar_reutrns_s 
 
     

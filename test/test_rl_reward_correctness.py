@@ -5,7 +5,7 @@ from sharpe.utils.mock_data import create_toy_feature
 from sharpe.data.data_source import DataSource
 from sharpe.environment import TradingEnv
 from sharpe.core.context import Context
-from sharpe.mod.sys_account.api.api import order_target_portfolio
+from sharpe.mod.sys_account.api import order_target_weights
 from sharpe.const import SIDE
 import unittest
 import pdb
@@ -60,7 +60,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         self.order_book_id = self.order_book_ids[0]
         
         
-        to_submit_orders = order_target_portfolio({self.order_book_id:0.5})
+        to_submit_orders = order_target_weights({self.order_book_id:0.5})
         state, reward, is_done, info = self.env.step(action=to_submit_orders)
         
         
@@ -113,7 +113,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         self.assertAlmostEqual(first=reward, second=expect_reward)
         
     def test_senond_step_sell(self):
-        to_submit_orders = order_target_portfolio({self.order_book_id:0.2})
+        to_submit_orders = order_target_weights({self.order_book_id:0.2})
         state, reward, is_done, info = self.env.step(action=to_submit_orders)
         
         order = to_submit_orders[0]

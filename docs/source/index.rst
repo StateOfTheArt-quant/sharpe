@@ -33,12 +33,12 @@ outline
 1 Motivation and concept design
 --------------------------------------
 Before we walk through an end-to-end example how to backtest a trading stratey with **sharpe**, let’s take a step back and discuss and understand the difficuties encountering when design a backtest engine for quantitative trading, the answer derives from
-quantitative researchers own different trading philosophy, trade different instruments in different market with different trading frequency. 
+quantitative researchers own different types of trading philosophy, trade different types of instruments in different markets with different trading frequencies. 
 
-* **different trading philosophy**: rule-based methodology versus factor-based methodology(supervised learning versus reinforcement learning)
-* **different instruments in different market**: stock, index, ETF, future in different countries and market.
-* **different trading frequency**: intra-day traing(seconds, minutes, hours) and inter-day trading(daily, weekly, montly)
-* **different data structure and dtypes**: cross-sectional data is used for explaining the cross-sectional variation in stock returns, time series data is used for timing strategy development, sequential data is used for sequencial-model, e.g. RNN and it variation algorithm. Besides, supervised learning algorithm and reinforcement learning need different data architecture.
+* **different types of trading philosophy**: rule-based methodology versus factor-based methodology(supervised learning versus reinforcement learning)
+* **different types of instruments in different market**: stock, index, ETF, future in different countries and markets.
+* **different trading frequencies**: intra-day trading(seconds, minutes, hours) and inter-day trading(daily, weekly, montly)
+* **different data structures and dtypes**: cross-sectional data is used for explaining the cross-sectional variation in stock returns, time series data is used for timing strategy development, sequential data is used for sequencial-model, e.g. RNN and it variation algorithm. Besides, supervised learning algorithm and reinforcement learning need different data architecture.
 
 trading decison can be viewed as a special case of sequential decision-making, which can be formalized as follows: at each timestamp, 
 
@@ -50,7 +50,7 @@ trading decison can be viewed as a special case of sequential decision-making, w
 The goal of the agent is to find a good policy(strategy) to maximize its cumulative reward.
 
 
-followwing this concept framwork, *sharpe* re-conceptualize the process of trading and provide research with low-level, common tool to 
+followwing this concept framwork, *sharpe* re-conceptualizes the process of trading and provides research with low-level, common tool to 
 
 
 2 Additonal Features
