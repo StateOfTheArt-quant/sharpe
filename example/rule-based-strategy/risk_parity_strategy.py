@@ -51,7 +51,7 @@ env = TradingEnv(data_source=data_source, look_backward_window=20)
 # ============================================================================ #
 # step3: create your strategy(policy), a mapping from state to action          #
 # ============================================================================ #
-from sharpe.mod.sys_account.api.api import order_target_portfolio
+from sharpe.mod.sys_account.api import order_target_weights
 
 def risk_parity_strategy(state:pd.DataFrame) -> list:
     volatility = state["returns"].groupby(level=0).std()
@@ -60,7 +60,7 @@ def risk_parity_strategy(state:pd.DataFrame) -> list:
     weight_dict = weight.to_dict()
     
     #call in-built trade API function
-    action = order_target_portfolio(weight_dict)
+    action = order_target_weights(weight_dict)
     return action
 
 
@@ -82,6 +82,15 @@ while True:
 env.render()
 
 
+# =============================================== #
+# evaluate strategy performance                   #
+# =============================================== #
+from sharpe.utils.risk import Risk, WEEKLY
+
+bar_returns = env._context.tracker.bar_returns
+risk = Risk(bar_returns=bar_returns, period=WEEKLY)
+performance = risk.performance() 
+print(performance)
 
 
 

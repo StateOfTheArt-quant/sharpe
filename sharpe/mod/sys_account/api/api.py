@@ -11,21 +11,21 @@ from sharpe.const import (DEFAULT_ACCOUNT_TYPE, ORDER_TYPE, POSITION_DIRECTION,
 from sharpe.object.order import LimitOrder, MarketOrder, Order, OrderStyle
 from sharpe.utils import is_valid_price
 
-def order_target_portfolio(target_portfolio:Dict[str, float]) -> List[Order]:
+def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
     """
-    make the account position to touch the target postion
-    :param target_portfolio: a dictionary contain the target weight of position
+    make the account position to touch the target position
+    :param target_weights: a dictionary contain the target weight of position
     :example:
     .. code-block:: python
         # adjust positions, to make the '000001.XSHE' to touch the target percent of account 10%
         # make the '000002.XSHE' to touch the target percent of account 15% 
-        order_target_portfolio({
+        order_target_weights({
             '000001.XSHE': 0.1
             '000002.XSHE': 0.15
         })
     """
 
-    total_percent = sum(six.itervalues(target_portfolio))
+    total_percent = sum(six.itervalues(target_weights))
     if total_percent > 1 and not np.isclose(total_percent, 1):
         raise RuntimeError("total percent should be lower than 1, current: {}").format(total_percent)
 
@@ -33,7 +33,7 @@ def order_target_portfolio(target_portfolio:Dict[str, float]) -> List[Order]:
     account = context.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK]
     account_value = account.total_value
     target_quantities = {}
-    for order_book_id, target_percent in target_portfolio.items():
+    for order_book_id, target_percent in target_weights.items():
 
         if target_percent < 0:
             raise RuntimeError("target percent of {} should between 0 and 1, current: {}".format(
@@ -52,7 +52,7 @@ def order_target_portfolio(target_portfolio:Dict[str, float]) -> List[Order]:
         p.order_book_id: p.quantity for p in account.get_positions() if p.direction == POSITION_DIRECTION.LONG
     }
     for order_book_id, quantity in current_quantities.items():
-        if order_book_id not in target_portfolio:
+        if order_book_id not in target_weights:
             close_orders.append(Order.__from_create__(
                 order_book_id, quantity, SIDE.SELL, MarketOrder(), POSITION_EFFECT.CLOSE
             ))

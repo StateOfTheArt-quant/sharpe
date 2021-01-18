@@ -14,8 +14,8 @@ from sharpe.core.context import Context
 print("current context \n",Context.get_instance().__dict__)
     
     
-from sharpe.mod.sys_account.api.api import order_target_portfolio
-to_submit_orders = order_target_portfolio({"000001.XSHE":0.5})
+from sharpe.mod.sys_account.api import order_target_weights
+to_submit_orders = order_target_weights({"000001.XSHE":0.5})
     
 state, reward, is_done, info = env.step(action=to_submit_orders)
 print(state, reward, is_done)
