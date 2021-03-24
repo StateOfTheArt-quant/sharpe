@@ -82,7 +82,7 @@ class TradingEnv(gym.Env):
         return self._context.trading_dt
     
     
-    def render(self):
+    def render(self, auto_open=True):
         if self.mode == "rl":
             returns_list = self._context.tracker._portfolio_forward_bar_returns.copy()
             returns_list.insert(0,0)
@@ -93,7 +93,7 @@ class TradingEnv(gym.Env):
         returns = pd.DataFrame(returns_list, index=index,columns=["unit_net_value"])
         unit_net_value = (returns + 1).cumprod()
             
-        plot_performance(unit_net_value)
+        plot_performance(unit_net_value, auto_open=auto_open)
     
 if __name__ == "__main__":
     from sharpe.utils.mock_data import create_toy_feature

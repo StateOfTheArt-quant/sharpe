@@ -79,7 +79,7 @@ while True:
           break
      else:
           state = next_state
-env.render()
+env.render(auto_open=False)
 
 
 # =============================================== #
