@@ -24,7 +24,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         self.starting_cash = {"STOCK":1000000, "FUTURE":10000}
         
         
-        self.commission_rate = 0.0008
+        self.commission_rate = 0.0005
         self.tax_rate = 0.001
         
         self.commission_multiplier=1
