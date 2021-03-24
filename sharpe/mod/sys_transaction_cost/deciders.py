@@ -52,7 +52,7 @@ class StockTransactionCostDecider(object):
 
 class CNStockTransactionCostDecider(StockTransactionCostDecider):
     def __init__(self, commission_multiplier=1, min_commission=5, tax_multiplier=1):
-        super(CNStockTransactionCostDecider, self).__init__(0.0008, commission_multiplier, min_commission)
+        super(CNStockTransactionCostDecider, self).__init__(0.0005, commission_multiplier, min_commission)
         self.tax_rate = 0.001
         self.tax_multiplier = tax_multiplier
 
