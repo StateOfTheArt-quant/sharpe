@@ -12,6 +12,9 @@ class Strategy(object):
     
     
     def handle_bar(self, event):
-        to_submit_orders = event.action
-        for order in to_submit_orders:
-            self._context.broker.submit_order(order)
+        action = event.action
+        if action is None:
+            pass
+        else:
+            for order in action:
+                self._context.broker.submit_order(order)
