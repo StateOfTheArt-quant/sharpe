@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from __future__ import division
 import numbers
 import numpy as np
 import pandas as pd
@@ -144,7 +145,7 @@ class Tracker(object):
         #
         _returns_mean = np.mean(returns)
         _returns_std = np.std(returns)
-        _unit_sharpe_ratio = _returns_mean / _returns_std
+        _unit_sharpe_ratio = _returns_mean / (_returns_std + 1e-7)
         drawdown = calc_draw_down(returns)
         
         return {
