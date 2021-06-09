@@ -3,6 +3,7 @@
 import gym
 import pdb
 import pandas as pd
+import numpy as np
 from sharpe.mod.sys_simulation.event_source import SimulationEventSource
 from sharpe.core.context import Context
 from sharpe.core.events import Event, EVENT
@@ -65,6 +66,15 @@ class TradingEnv(gym.Env):
         
         # user strategy
         user_strategy = Strategy(self._context)
+        
+        # action and observation space
+        self.action_space = gym.spaces.Box(0, 1, shape=(len(data_source.order_book_ids_index),), dtype=np.float32)  # include cash
+
+        # get the state space from the data min and max
+        if look_backward_window == 1:
+            self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(len(data_source.order_book_ids_index), len(data_source.feature_list)), dtype=np.float32)
+        else:
+            self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(len(data_source.order_book_ids_index), look_backward_window, len(data_source.feature_list)), dtype=np.float32)
             
     def reset(self):
         state = Context.get_instance().history_bars()

@@ -10,8 +10,9 @@ class DataSource(object):
         self._feature_df = feature_df
         self._price_s = price_s        
         
-        self.order_book_ids_index = feature_df.index.levels[0]
-        self.trading_dts_index = price_s.index.levels[1]
+        self.order_book_ids_index = feature_df.index.levels[0].unique()
+        self.trading_dts_index = price_s.index.levels[1].unique()
+        self.feature_list = feature_df.columns.to_list()
     
     
     def history_bars(self, order_book_ids:List[str], dt:datetime.datetime, bar_count:int) -> pd.DataFrame:
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     availabel_dts = data_source.get_available_trading_dts()
     
     #get_availabel_order_book_ids
-    order_book_ids = data_source.get_availabel_order_book_ids()
+    order_book_ids = data_source.get_available_order_book_ids()
     
     #get state
     state = data_source.history_bars(order_book_ids=order_book_ids, dt=availabel_dts[3], bar_count=2)
