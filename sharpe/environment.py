@@ -53,11 +53,6 @@ class TradingEnv(gym.Env):
         portfolio = Portfolio(starting_cash=starting_cash, init_positions={})
         self._context.set_portfolio(portfolio)
         
-        # setup a tracker to record key info
-        tracker = Tracker(self._context)
-        self._context.set_tracker(tracker)
-        self._context.event_bus.publish_event(Event(EVENT.POST_SYSTEM_INIT))
-        
         #setUP executor
         if mode == "rl":
             self._executor = RLExecutor(self._context)
@@ -66,6 +61,15 @@ class TradingEnv(gym.Env):
         
         # user strategy
         user_strategy = Strategy(self._context)
+        
+        
+        # setup a tracker to record key info
+        tracker = Tracker(self._context)
+        self._context.set_tracker(tracker)
+        
+        
+        self._context.event_bus.publish_event(Event(EVENT.POST_SYSTEM_INIT))
+        self._context.update_time(calendar_dt=self._context.available_trading_dts[0], trading_dt=self._context.available_trading_dts[0])
         
         # action and observation space
         self.action_space = gym.spaces.Box(0, 1, shape=(len(data_source.order_book_ids_index),), dtype=np.float32)  # include cash
@@ -77,6 +81,7 @@ class TradingEnv(gym.Env):
             self.observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(len(data_source.order_book_ids_index), look_backward_window, len(data_source.feature_list)), dtype=np.float32)
             
     def reset(self):
+        self._context.update_time(calendar_dt=self._context.available_trading_dts[0], trading_dt=self._context.available_trading_dts[0])
         state = Context.get_instance().history_bars()
         return state
     
@@ -91,6 +96,9 @@ class TradingEnv(gym.Env):
     def trading_dt(self):
         return self._context.trading_dt
     
+    @property
+    def available_trading_dts(self):
+        return self._context.available_trading_dts
     
     def render(self, auto_open=True):
         if self.mode == "rl":

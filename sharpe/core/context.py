@@ -65,17 +65,17 @@ class Context(object):
         self.trading_dt = trading_dt
         
     def get_available_trading_dts(self):
-        raw_availabel_trading_dts = self.data_source.get_available_trading_dts()
-        self.availabel_trading_dts =  raw_availabel_trading_dts[self.look_backward_window-1:]
-        return self.availabel_trading_dts
+        raw_available_trading_dts = self.data_source.get_available_trading_dts()
+        self.available_trading_dts =  raw_available_trading_dts[self.look_backward_window-1:]
+        return self.available_trading_dts
     
     @property
     def available_order_book_ids(self):
         return self.data_source.get_available_order_book_ids()
     
     def get_next_trading_dt(self):
-        current_idx = self.availabel_trading_dts.searchsorted(self.trading_dt, side="left")
-        return self.availabel_trading_dts[current_idx+1]
+        current_idx = self.available_trading_dts.searchsorted(self.trading_dt, side="left")
+        return self.available_trading_dts[current_idx+1]
     
     def get_account(self, order_book_id):
         return self.portfolio.get_account(order_book_id)
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     context = Context(look_backward_window=2)
     context.set_data_source(data_source)
     
-    availabel_trading_dts = context.get_available_trading_dts()
-    print(availabel_trading_dts)
+    available_trading_dts = context.get_available_trading_dts()
+    print(available_trading_dts)
     
     
     
