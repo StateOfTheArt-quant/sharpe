@@ -19,9 +19,6 @@ class Executor(object):
         self.available_trading_dts = self._context.get_available_trading_dts()
         
         self._events_container = self._context.event_source.events(trading_dts = self.available_trading_dts) 
-        #temp operation
-        #self._context.trading_dt =  self.available_trading_dts[0]
-        self._context.update_time(calendar_dt=self.available_trading_dts[0], trading_dt=self.available_trading_dts[0])
     
     def send(self, action):
         
@@ -72,8 +69,6 @@ class RLExecutor(object):
         self.available_trading_dts = self._context.get_available_trading_dts()
         
         self._events_container = self._context.event_source._rl_events(trading_dts = self.available_trading_dts) 
-        #temp operation
-        self._context.update_time(calendar_dt=self.available_trading_dts[0], trading_dt=self.available_trading_dts[0])
     
 
     def send(self, action):
