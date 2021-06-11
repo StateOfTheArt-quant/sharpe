@@ -107,7 +107,7 @@ class TradingEnv(gym.Env):
         else:
             returns_list = self._context.tracker._portfolio_current_bar_returns.copy()
         #pdb.set_trace()
-        index = self._context.availabel_trading_dts
+        index = self._context.available_trading_dts
         returns = pd.DataFrame(returns_list, index=index,columns=["unit_net_value"])
         unit_net_value = (returns + 1).cumprod()
             
