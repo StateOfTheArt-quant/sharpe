@@ -7,11 +7,11 @@ class Context(object):
     """serve as a global variable, prodiving context to different module"""
     
     _instance = None
-    def __new__(cls, *args, **kwars):
-        """make the Context class be a Singleton Pattern, that it says can be instanced only once"""
-        if cls._instance is None:
-            cls._instance = super(Context, cls).__new__(cls)
-        return cls._instance
+    #def __new__(cls, *args, **kwars):
+    #    """make the Context class be a Singleton Pattern, that it says can be instanced only once"""
+    #    if cls._instance is None:
+    #        cls._instance = super(Context, cls).__new__(cls)
+    #    return cls._instance
     
         
     def __init__(self, look_backward_window=2):

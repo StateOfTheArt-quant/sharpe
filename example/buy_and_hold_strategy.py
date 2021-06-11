@@ -35,7 +35,9 @@ while True:
       if NOT_TRADE_FLAG:
           order_book_ids = state.index.get_level_values(0).drop_duplicates()
           target_weight_dict = equal_weight_buy_and_hold_strategy(list(order_book_ids))
+          print(target_weight_dict)
           action = order_target_weights(target_weight_dict)
+          
           next_state, reward, done, info = env.step(action)
           
           NOT_TRADE_FLAG = False
