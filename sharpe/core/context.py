@@ -58,7 +58,7 @@ class Context(object):
     
     
     def history_bars(self):
-        return self.data_source.history_bars(order_book_ids=self.available_order_book_ids, dt=self.trading_dt, bar_count=self.look_backward_window)
+        return self.data_source.history_bars(dt=self.trading_dt, bar_count=self.look_backward_window)
     
     def update_time(self, calendar_dt:datetime, trading_dt:datetime) -> None:
         self.calendar_dt = calendar_dt
