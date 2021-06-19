@@ -19,7 +19,7 @@ class TradingEnv(gym.Env):
     
     def __init__(self, data_source,
                  look_backward_window=1, 
-                 mode="rl",
+                 mode="non-rl",
                  starting_cash = {"STOCK":1000000},
                  commission_multiplier=1,
                  min_commission=5,
