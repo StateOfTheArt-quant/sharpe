@@ -18,7 +18,7 @@ env= TradingEnv(data_source=data_source, look_backward_window=2, mode="non-rl", 
 
 print('--------------------------------------------')
 from sharpe.core.context import Context
-print("current context \n",Context.get_instance().__dict__)
+#print("current context \n",Context.get_instance().__dict__)
 
 
 print("------------the first trading date: {}--------------------------".format(env.trading_dt))
@@ -38,7 +38,6 @@ assert target_quantity == order.quantity
     
 state, reward, is_done, info = env.step(action=to_submit_orders)
 print(state, reward, is_done)
-
 
 
 portfolio = Context.get_instance().portfolio
