@@ -10,6 +10,36 @@ from sharpe.const import (DEFAULT_ACCOUNT_TYPE, ORDER_TYPE, POSITION_DIRECTION,
                            POSITION_EFFECT, SIDE)
 from sharpe.object.order import LimitOrder, MarketOrder, Order, OrderStyle
 from sharpe.utils import is_valid_price
+from sharpe.mod.sys_account.position import Position
+
+def get_positions() -> List[Position]:
+    """
+    获取所有持仓对象列表，
+    :example:
+    ..  code-block:: python3
+        [In] get_positions()
+        [Out]
+        [BookingPosition({'order_book_id': '000014.XSHE', 'quantity': 100, 'direction': POSITION_DIRECTION.LONG, 'old_quantity': 0, 'trading_pnl': 1.0, 'avg_price': 9.56, 'last_price': 0, 'position_pnl': 0.0}),
+         BookingPosition({'order_book_id': '000010.XSHE', 'quantity': 100, 'direction': POSITION_DIRECTION.LONG, 'old_quantity': 0, 'trading_pnl': 0.0, 'avg_price': 3.09, 'last_price': 0, 'position_pnl': 0.0})]
+    """
+    portfolio = Context.get_instance().portfolio
+    return portfolio.get_positions()
+
+def get_position(order_book_id:str, direction:POSITION_DIRECTION=POSITION_DIRECTION.LONG) -> Position:
+
+    """
+    获取某个标的的持仓对象，
+    :param order_book_id: 标的编号
+    :param direction: 持仓方向
+    :example:
+    ..  code-block:: python3
+        [In] get_position('000014.XSHE','long_positions")
+        [Out]
+        [BookingPosition({'order_book_id': '000014.XSHE', 'quantity': 100, 'direction': POSITION_DIRECTION.LONG, 'old_quantity': 0, 'trading_pnl': 1.0, 'avg_price': 9.56, 'last_price': 0, 'position_pnl': 0.0})]
+    """
+    portfolio = Context.get_instance().portfolio
+    return portfolio.get_position(order_book_id, direction)
+
 
 def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
     """
@@ -53,6 +83,60 @@ def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
     }
     for order_book_id, quantity in current_quantities.items():
         if order_book_id not in target_weights:
+            close_orders.append(Order.__from_create__(
+                order_book_id, quantity, SIDE.SELL, MarketOrder(), POSITION_EFFECT.CLOSE
+            ))
+
+    round_lot = 100
+    for order_book_id, target_quantity in target_quantities.items():
+        if order_book_id in current_quantities:
+            delta_quantity = target_quantity - current_quantities[order_book_id]
+        else:
+            delta_quantity = target_quantity
+
+        if delta_quantity >= round_lot:
+            delta_quantity = math.floor(delta_quantity / round_lot) * round_lot
+            open_orders.append(Order.__from_create__(
+                order_book_id, delta_quantity, SIDE.BUY, MarketOrder(), POSITION_EFFECT.OPEN
+            ))
+        elif delta_quantity < -1:
+            delta_quantity = math.floor(delta_quantity)
+            close_orders.append(Order.__from_create__(
+                order_book_id, abs(delta_quantity), SIDE.SELL, MarketOrder(), POSITION_EFFECT.CLOSE
+            ))
+
+    to_submit_orders = []
+    for order in chain(close_orders, open_orders):
+        #print("to submit order: {}".format(order))
+        to_submit_orders.append(order)
+    return to_submit_orders
+
+
+def order_target_quantities(target_quantities:Dict[str, int]) -> List[Order]:
+    """
+    make the account position to touch the target quantities
+    :param target_quantities: a dictionary contain the target quantities of position
+    :example:
+    .. code-block:: python
+        # adjust positions, to make the '000001.XSHE' to touch the target quantities 800
+        # make the '000002.XSHE' to touch the target quantities 400 
+        order_target_quantities({
+            '000001.XSHE': 800
+            '000002.XSHE': 400
+        })
+    """
+
+    context = Context.get_instance()
+    account = context.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK]
+
+    close_orders, open_orders = [], []
+    current_quantities = {
+        p.order_book_id: p.quantity for p in account.get_positions() if p.direction == POSITION_DIRECTION.LONG
+    }
+    
+    # close all position if the order_book_id not in the key list of target_quantities
+    for order_book_id, quantity in current_quantities.items():
+        if order_book_id not in target_quantities:
             close_orders.append(Order.__from_create__(
                 order_book_id, quantity, SIDE.SELL, MarketOrder(), POSITION_EFFECT.CLOSE
             ))
