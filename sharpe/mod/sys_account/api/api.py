@@ -14,7 +14,7 @@ from sharpe.mod.sys_account.position import Position
 
 def get_positions() -> List[Position]:
     """
-    获取所有持仓对象列表，
+    get all available positions，
     :example:
     ..  code-block:: python3
         [In] get_positions()
@@ -28,9 +28,9 @@ def get_positions() -> List[Position]:
 def get_position(order_book_id:str, direction:POSITION_DIRECTION=POSITION_DIRECTION.LONG) -> Position:
 
     """
-    获取某个标的的持仓对象，
-    :param order_book_id: 标的编号
-    :param direction: 持仓方向
+    get the position object from one specific order_book_id，
+    :param order_book_id: 
+    :param direction:
     :example:
     ..  code-block:: python3
         [In] get_position('000014.XSHE','long_positions")
