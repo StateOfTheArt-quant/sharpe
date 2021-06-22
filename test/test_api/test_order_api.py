@@ -9,26 +9,27 @@ from sharpe.mod.sys_account.api import order_target_quantities, get_position
 import unittest
 
 
-feature_df, price_s = create_toy_feature(order_book_ids_number=3, feature_number=3, random_seed=111)
-data_source = DataSource(feature_df=feature_df, price_s=price_s)
-
-all_order_book_ids = data_source.get_available_order_book_ids()
-print(all_order_book_ids)
-
-STOCK_INIT_CASH = 1000000
-    
-env= TradingEnv(data_source=data_source, look_backward_window=2, mode="non-rl", starting_cash= {"STOCK":STOCK_INIT_CASH},
-                commission_multiplier=0,
-                min_commission=0,
-                tax_multiplier=0)
-
-
 class TestOrderTargetQuantities(unittest.TestCase):
     
     def setUp(self):
         pass
     
     def test_order_target_quantites(self):
+
+        feature_df, price_s = create_toy_feature(order_book_ids_number=3, feature_number=3, random_seed=111)
+        data_source = DataSource(feature_df=feature_df, price_s=price_s)
+
+        all_order_book_ids = data_source.get_available_order_book_ids()
+        print(all_order_book_ids)
+    
+        STOCK_INIT_CASH = 1000000
+    
+        env= TradingEnv(data_source=data_source, look_backward_window=2, mode="non-rl", starting_cash= {"STOCK":STOCK_INIT_CASH},
+                        commission_multiplier=0,
+                        min_commission=0,
+                        tax_multiplier=0)
+
+
         state = env.reset()
         target_quantities1 = {all_order_book_ids[0] : 500, all_order_book_ids[1]:600}
         to_submit_orders1 = order_target_quantities(target_quantities1)
