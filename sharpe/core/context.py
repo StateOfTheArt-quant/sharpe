@@ -96,7 +96,9 @@ class Context(object):
 
     def get_trade_commission(self, trade):
         return self._get_transaction_cost_decider(trade.order_book_id).get_trade_commission(trade)
-
+    
+    def get_order_transaction_cost(self, order):
+        return self._get_transaction_cost_decider(order.order_book_id).get_order_transaction_cost(order)
 if __name__ == "__main__":
     from sharpe.utils.mock_data import create_toy_feature
     from sharpe.data.data_source import DataSource

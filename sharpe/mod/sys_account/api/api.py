@@ -3,6 +3,7 @@
 import six
 import math
 import numpy as np
+from decimal import Decimal, getcontext
 from itertools import chain
 from typing import Dict, List, Optional, Union
 from sharpe.core.context import Context
@@ -11,6 +12,53 @@ from sharpe.const import (DEFAULT_ACCOUNT_TYPE, ORDER_TYPE, POSITION_DIRECTION,
 from sharpe.object.order import LimitOrder, MarketOrder, Order, OrderStyle
 from sharpe.utils import is_valid_price
 from sharpe.mod.sys_account.position import Position
+
+KSH_MIN_AMOUNT = 200
+
+def cal_style(price, style):
+    if price is None and style is None:
+        return MarketOrder()
+
+    if style is not None:
+        if not isinstance(style, OrderStyle):
+            raise RuntimeError
+        return style
+
+    if isinstance(price, OrderStyle):
+        # 为了 order_xxx('RB1710', 10, MarketOrder()) 这种写法
+        if isinstance(price, LimitOrder):
+            if np.isnan(price.get_limit_price()):
+                raise RuntimeError("Limit order price should not be nan.")
+        return price
+
+    if np.isnan(price):
+        raise RuntimeError(u"Limit order price should not be nan.")
+
+    return LimitOrder(price)
+
+def _get_account_position_ins(order_book_id):
+    account = Context.get_instance().portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK]
+    position = account.get_position(order_book_id, POSITION_DIRECTION.LONG)
+    return account, position
+
+
+def is_cash_enough(order, account, warn=True):
+    order_cost = order.frozen_price*order.quantity #instrument.calc_cash_occupation(order.frozen_price, order.quantity, order.position_direction)
+    order_cost += Context.get_instance().get_order_transaction_cost(order)
+    if order_cost <= account.cash:
+        return True
+    if warn:
+        print("Order Creation Failed: not enough money to buy {order_book_id}, needs {cost_money:.2f},"
+              " cash {cash:.2f}").format(
+                order_book_id=order.order_book_id,
+                cost_money=order_cost,
+                cash=account.cash,
+            )
+    return False
+
+def _get_ksh_amount(amount):
+    return 0 if abs(amount) < KSH_MIN_AMOUNT else amount // 1
+
 
 def get_positions() -> List[Position]:
     """
@@ -39,6 +87,101 @@ def get_position(order_book_id:str, direction:POSITION_DIRECTION=POSITION_DIRECT
     """
     portfolio = Context.get_instance().portfolio
     return portfolio.get_position(order_book_id, direction)
+
+
+def _submit_order(order_book_id, amount, side, position_effect, style, quantity, auto_switch_order_value):
+    # param: amount: the target quantity of this order
+    # param: quantity: the quantity of exist position of order_book_id
+    context = Context.get_instance()
+    if isinstance(style, LimitOrder):
+        if not is_valid_price(style.get_limit_price()):
+            raise RuntimeError((u"Limit order price should be positive"))
+    price = context.get_last_price(order_book_id)
+    if not is_valid_price(price):
+        print("Order Creation Failed: [{order_book_id}] No market data").format(order_book_id=order_book_id)
+        return
+    round_lot = 100
+
+    if side in [SIDE.BUY, side.SELL]:
+        if not (side == SIDE.SELL and quantity == abs(amount)):
+                # KSH can buy(sell) 201, 202 shares
+                amount = int(Decimal(amount) / Decimal(round_lot)) * round_lot
+
+    if amount == 0:
+        print("Order Creation Failed: 0 order quantity, order_book_id={order_book_id}").format(order_book_id=order_book_id)
+        return
+    order = Order.__from_create__(order_book_id, abs(amount), side, style, position_effect)
+    if order.type == ORDER_TYPE.MARKET:
+        order.set_frozen_price(price)
+    if side == SIDE.BUY and auto_switch_order_value:
+        account, position = _get_account_position_ins(order_book_id)
+        if not is_cash_enough(order, account):
+            print("insufficient cash, use all remaining cash({}) to create order").format(account.cash)
+            return _order_value(account, position, order_book_id, account.cash, style)
+    return order
+
+def _order_shares(order_book_id, amount, style, quantity, auto_switch_order_value):
+    side, position_effect = (SIDE.BUY, POSITION_EFFECT.OPEN) if amount > 0 else (SIDE.SELL, POSITION_EFFECT.CLOSE)
+    return _submit_order(order_book_id, amount, side, position_effect, style, quantity, auto_switch_order_value)
+
+
+def _order_value(account, position, order_book_id, cash_amount, style):
+    context = Context.get_instance()
+    if cash_amount > 0:
+        cash_amount = min(cash_amount, account.cash)
+    if isinstance(style, LimitOrder):
+        price = style.get_limit_price()
+    else:
+        price = context.get_last_price(order_book_id)
+        if not is_valid_price(price):
+            print("Order Creation Failed: [{order_book_id}] No market data").format(order_book_id=order_book_id)
+            return
+
+    amount = int(Decimal(cash_amount) / Decimal(price))
+
+    round_lot = 100#int(ins.round_lot)
+    if cash_amount > 0:
+        amount = int(Decimal(amount) / Decimal(round_lot)) * round_lot
+        while amount > 0:
+            expected_transaction_cost = context.get_order_transaction_cost(Order.__from_create__(
+                order_book_id, amount, SIDE.BUY, LimitOrder(price), POSITION_EFFECT.OPEN
+            ))
+            if amount * price + expected_transaction_cost <= cash_amount:
+                break
+            amount -= round_lot
+        else:
+            print("Order Creation Failed: 0 order quantity")
+            return
+
+    if amount < 0:
+        amount = max(amount, -position.closable)
+
+    return _order_shares(order_book_id, amount, style, position.quantity, auto_switch_order_value=False)
+
+def order_value(order_book_id, cash_amount, price=None, style=None):
+    account, position = _get_account_position_ins(order_book_id)
+    return _order_value(account, position, order_book_id, cash_amount, cal_style(price, style))
+
+def order_target_value(order_book_id, cash_amount, price=None, style=None):
+    account, position = _get_account_position_ins(order_book_id)
+    if cash_amount == 0:
+        return _submit_order(order_book_id, position.closable, SIDE.SELL, POSITION_EFFECT.CLOSE, cal_style(price, style),
+                             position.quantity, False)
+    return _order_value(account, position, order_book_id, cash_amount - position.market_value, cal_style(price, style))
+
+def order_percent(order_book_id, percent, price=None, style=None):
+    account, position = _get_account_position_ins(order_book_id)
+    return _order_value(account, position, order_book_id, account.total_value * percent, cal_style(price, style))
+
+def order_target_percent(order_book_id, percent, price=None, style=None):
+    account, position = _get_account_position_ins(order_book_id)
+    if percent == 0:
+        return _submit_order(order_book_id, position.closable, SIDE.SELL, POSITION_EFFECT.CLOSE, cal_style(price, style),
+                             position.quantity, False)
+    else:
+        return _order_value(
+            account, position, order_book_id, account.total_value * percent - position.market_value, cal_style(price, style)
+        )
 
 
 def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
