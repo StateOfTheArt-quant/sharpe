@@ -115,6 +115,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         print("fisrt date end price: {}".format(expect_deal_price1))
         expect_quantity1 = (STOCK_INIT_CASH * target_weight)/ expect_deal_price1
         expect_quantity1 = int(round(expect_quantity1/100) * 100)
+        
         print((submit_order.quantity, expect_quantity1))
         
         expect_deal_money = expect_deal_price1 * expect_quantity1        

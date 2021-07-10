@@ -204,10 +204,6 @@ def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
         raise RuntimeError("total percent should be lower than 1, current: {}").format(total_percent)
 
     context = Context.get_instance()
-    # update_last_price to update account total value before trading on the BAR
-    #context.event_bus.publish_event(Event(EVENT.PRE_BAR))
-    
-    #pdb.set_trace()
     account = context.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK]
     account_value = account.get_current_trading_dt_total_value()
     
@@ -227,7 +223,7 @@ def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
             
             continue
         target_quantity = account_value * target_percent / price
-        target_quantities[order_book_id] = int(round(target_quantity/100) * 100)
+        target_quantities[order_book_id] = int(round(target_quantity/100) * 100) #target_quantity#
 
     close_orders, open_orders = [], []
     current_quantities = {
