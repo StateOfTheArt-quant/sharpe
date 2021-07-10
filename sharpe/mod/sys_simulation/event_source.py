@@ -11,12 +11,30 @@ class SimulationEventSource(object):
     
     def events(self, trading_dts):
         event_container = {}
-        for trading_dt in trading_dts:
+        #for trading_dt in trading_dts[:-1]:
+        for i, trading_dt in enumerate(trading_dts):
             
-            events_within_bar = ( Event(EVENT.BEFORE_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt),
-                             Event(EVENT.BAR, calendar_dt=trading_dt, trading_dt=trading_dt),
-                             Event(EVENT.AFTER_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt)
-                )
+            #events_within_bar = ( Event(EVENT.BEFORE_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt),
+            #                 Event(EVENT.BAR, calendar_dt=trading_dt, trading_dt=trading_dt),
+            #                 Event(EVENT.AFTER_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt)
+            #    )
+            events_within_bar = []
+            events_within_bar.append(Event(EVENT.PRE_BEFORE_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.BEFORE_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.POST_BEFORE_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt))
+
+            events_within_bar.append(Event(EVENT.PRE_BAR, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.BAR, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.POST_BAR, calendar_dt=trading_dt, trading_dt=trading_dt))
+            
+            events_within_bar.append(Event(EVENT.PRE_AFTER_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.AFTER_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.POST_AFTER_TRADING, calendar_dt=trading_dt, trading_dt=trading_dt))
+            
+            events_within_bar.append(Event(EVENT.PRE_SETTLEMENT, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.SETTLEMENT, calendar_dt=trading_dt, trading_dt=trading_dt))
+            events_within_bar.append(Event(EVENT.POST_SETTLEMENT, calendar_dt=trading_dt, trading_dt=trading_dt))
+            
             #yield events_within_bar
             event_container[trading_dt] = events_within_bar
         return event_container

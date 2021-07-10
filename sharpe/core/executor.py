@@ -26,8 +26,9 @@ class Executor(object):
             
             if event.event_type == EVENT.BAR:
                 event.action = action
-            self._split_and_publish(event)       
-        self._split_and_publish(Event(EVENT.SETTLEMENT))
+            self._context.event_bus.publish_event(event)
+            #self._split_and_publish(event)       
+        #self._split_and_publish(Event(EVENT.SETTLEMENT))
  
         tracker = self._context.tracker
         reward = tracker._portfolio_current_bar_returns[-1]
