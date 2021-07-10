@@ -12,7 +12,8 @@ from sharpe.const import (DEFAULT_ACCOUNT_TYPE, ORDER_TYPE, POSITION_DIRECTION,
 from sharpe.object.order import LimitOrder, MarketOrder, Order, OrderStyle
 from sharpe.utils import is_valid_price
 from sharpe.mod.sys_account.position import Position
-
+from sharpe.core.events import Event, EVENT
+import pdb
 KSH_MIN_AMOUNT = 200
 
 def cal_style(price, style):
@@ -204,7 +205,10 @@ def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
 
     context = Context.get_instance()
     account = context.portfolio.accounts[DEFAULT_ACCOUNT_TYPE.STOCK]
-    account_value = account.total_value
+    account_value = account.get_current_trading_dt_total_value()
+    
+    
+    #
     target_quantities = {}
     for order_book_id, target_percent in target_weights.items():
 
@@ -218,7 +222,8 @@ def order_target_weights(target_weights:Dict[str, float]) -> List[Order]:
             print("Order Creation Failed: [{order_book_id}] No market data".format(order_book_id=order_book_id))
             
             continue
-        target_quantities[order_book_id] = account_value * target_percent / price
+        target_quantity = account_value * target_percent / price
+        target_quantities[order_book_id] = int(round(target_quantity/100) * 100) #target_quantity#
 
     close_orders, open_orders = [], []
     current_quantities = {

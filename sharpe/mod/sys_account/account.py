@@ -336,6 +336,19 @@ class Account:
         else:
             order_cost = 0
         return order_cost + 5#context.get_order_transaction_cost(order) to fix
-
+    
+    
+    def get_current_trading_dt_total_value(self):
+        # this method is stateless operation
+        total_equity = 0
+        for p in self._iter_pos():
+            if p.quantity !=0:
+                price = Context.get_instance().get_last_price(p.order_book_id)
+                total_equity += price * p.quantity
+        return self._total_cash + total_equity
+    
+    
+    
+    
 if __name__ == "__main__":
     account = Account(type="stock", total_cash=1000000)

@@ -7,7 +7,7 @@ from sharpe.environment import TradingEnv
 from sharpe.core.context import Context
 from sharpe.mod.sys_account.api import order_target_weights
 from sharpe.const import POSITION_DIRECTION
-
+import pdb
 import unittest
 
 class TestOneObjectImplmentCorrection(unittest.TestCase):
@@ -30,6 +30,42 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         min_commission=5
         tax_multiplier=1
         
+        
+        """
+         
+        MANUALly check
+        
+        first date: 
+            target weight: 0.5
+            price at end: 77.53
+            
+            target quantity: 6400
+            deal_money = 6400 * 77.53 = 496192
+            commition_fee_total = 496.192
+            availabel_cash_stock = 1000000 - 496192 - 496.192 = 503311.808
+            total_value_account_stock = 496192 + 503311.808 = 999503.808
+            total_value_account = 999503.808 + 10000 = 1009503.808
+            returns = 1009503.808/1010000  -1 = -0.0004912792079208028
+        
+        second date:
+            target weight: 0.2
+            price at end: 69.78
+            
+            stock_account_at_this_time: 6400*69.78 + 503311.808 =  949903.808
+            target quantity: 2700
+            to_trade_quantity: 3700
+            deal_money = 3700 * 69.78 = 258186
+            commition_fee_total = 258186 * (0.001 + 0.001) = 516.372
+            
+            available_cash_stock = 503311.808 + 258186 - 516.372 = 760981.436
+            
+            total_value_account_stock = 760981.436 + 2700*69.78 = 949387.436
+            
+            total_value_account = 949387.436 + 10000 =959387.436
+            
+            return = 959387.436/1009503.808 - 1 = -0.04964455963696568
+        
+        """
         
         env= TradingEnv(data_source=data_source, 
                         look_backward_window=2, 
@@ -68,36 +104,38 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         
         #
         target_weight = 0.5
-        print("------------the second trading date: {}--------------------------".format(env.trading_dt))        
+        print("------------the first trading date: {}--------------------------".format(env.trading_dt))        
         to_submit_orders = order_target_weights({order_book_id:target_weight})
-        state, reward, is_done, info = env.step(action=to_submit_orders)
-            
+        
         submit_order = to_submit_orders[0]
-        true_order = context.tracker._orders[0]
-        print(true_order)
-        #trade = context.tracker._trades[0]
-
-
         # ============================================================= #
         # step1: test trade correctness                                 #
         # ============================================================= #
-        expect_deal_price = data_source.get_last_price(order_book_id = order_book_id , dt=first_trading_dt)
-        expect_quantity = (STOCK_INIT_CASH * target_weight)/ expect_deal_price
-        expect_quantity = int(round(expect_quantity/100) * 100)
-        print((true_order.quantity, expect_quantity))
-            
-        expect_deal_money = expect_deal_price * expect_quantity
+        expect_deal_price1 = data_source.get_last_price(order_book_id = order_book_id , dt=first_trading_dt)
+        print("fisrt date end price: {}".format(expect_deal_price1))
+        expect_quantity1 = (STOCK_INIT_CASH * target_weight)/ expect_deal_price1
+        expect_quantity1 = int(round(expect_quantity1/100) * 100)
         
+        print((submit_order.quantity, expect_quantity1))
+        
+        expect_deal_money = expect_deal_price1 * expect_quantity1        
         expect_commission_fee = expect_deal_money * commission_rate * commission_multiplier
         expect_tax = 0 # no tax rate when buy
         expect_transaction_cost = expect_commission_fee + expect_tax
+
+        
+        
+        state, reward, is_done, info = env.step(action=to_submit_orders)
             
+        
+        true_order = context.tracker._orders[0]
+        print(true_order)
         first_trade = context.tracker._trades[0]
         
-        first_trade = first_trade
+        #first_trade = first_trade
         self.assertEqual(first=first_trade["order_book_id"], second= order_book_id)
         self.assertEqual(first=first_trade["trading_datetime"], second = first_trading_dt.strftime("%Y-%m-%d %H:%M:%S"))
-        self.assertEqual(first=first_trade["last_price"], second=expect_deal_price)
+        self.assertEqual(first=first_trade["last_price"], second=expect_deal_price1)
         self.assertEqual(first=first_trade["commission"], second=expect_commission_fee)
         self.assertEqual(first=first_trade["tax"], second=expect_tax)
         self.assertEqual(first=first_trade["transaction_cost"], second=expect_transaction_cost)
@@ -118,10 +156,12 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         stock_account = portfolio.stock_account
         position1 = stock_account.get_position(order_book_id, POSITION_DIRECTION.LONG)
         print(expect_market_value_stock, position1.market_value)
+        #pdb.set_trace()
         assert expect_market_value_stock == position1.market_value
         print(expect_market_value_stock, stock_account.market_value)     
         print(expect_cash_stock, stock_account.total_cash)
         print(expect_total_value_stock, stock_account.total_value)
+        
         self.assertEqual(expect_market_value_stock, position1.market_value)
         self.assertEqual(expect_market_value_stock, stock_account.market_value)
         self.assertEqual(expect_cash_stock, stock_account.total_cash)
@@ -144,7 +184,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         #print(portfolio_record)
         expect_reward = (expect_total_value_portfolio_new / expect_total_value_portfolio) -1
         print(expect_reward, reward, portfolio.daily_returns)
-        
+        #pdb.set_trace()
         self.assertEqual(expect_cash_portfolio, portfolio.cash)
         self.assertEqual(expect_market_value, portfolio.market_value)
         self.assertEqual(expect_total_value_portfolio_new, portfolio.total_value)
@@ -163,22 +203,37 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         
         
         to_submit_orders = order_target_weights({order_book_id: target_weight})
+        order = to_submit_orders[0]
+        #pdb.set_trace()
+        
+        expect_deal_price = data_source.get_last_price(order_book_id = order_book_id , dt=second_trading_dt)
+        print("second date end price: {}".format(expect_deal_price))
+        #here is the point: we need to get the updated account total value
+        expect_deal_price = data_source.get_last_price(order_book_id = order_book_id , dt=second_trading_dt) #69.78
+        
+        expect_market_value_stock = expect_quantity1 * expect_deal_price
+        expect_cash_stock =  expect_cash_stock
+        expect_total_value_stock = expect_cash_stock + expect_market_value_stock
+ 
+        expect_quantity2 = (expect_total_value_stock * target_weight)/ expect_deal_price
+        expect_quantity2 = int(round(expect_quantity2/100) * 100)
+        
+        to_trade_quantity = abs(expect_quantity2 - expect_quantity1)
+        #expect_quantity = true_order.quantity  #allow not 100 times
+        #print((, expetrue_orderct_quantity))
+        expect_deal_money = expect_deal_price * to_trade_quantity
+ 
+        expect_commission_fee = expect_deal_money * commission_rate * commission_multiplier 
+        expect_tax = expect_deal_money * tax_rate * tax_multiplier # no tax rate when buy, but charge when sell
+        expect_transaction_cost = expect_commission_fee + expect_tax
+        #pdb.set_trace()
+
+        
         state, reward, is_done, info = env.step(action=to_submit_orders)
             
-        order = to_submit_orders[0]
         true_order = context.tracker._orders[1]
         # if sell, allow the quantity is not 100 times
-        print(true_order)
-
-        expect_deal_price = data_source.get_last_price(order_book_id = order_book_id , dt=second_trading_dt)
-        expect_quantity = true_order.quantity  #allow not 100 times
-        #print((, expetrue_orderct_quantity))
-        expect_deal_money = expect_deal_price * expect_quantity
- 
-        expect_commission_fee = expect_deal_money * commission_rate * commission_multiplier
-        expect_tax = expect_deal_money * tax_rate * tax_multiplier # no tax rate when buy
-        expect_transaction_cost = expect_commission_fee + expect_tax
-        
+        print(true_order)        
         second_trade = context.tracker._trades[1]
         print(second_trade["order_book_id"], order_book_id)
         print(second_trade["trading_datetime"], second_trading_dt.strftime("%Y-%m-%d %H:%M:%S"))
@@ -192,7 +247,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         self.assertEqual(first=second_trade["commission"], second=expect_commission_fee)
         self.assertEqual(first=second_trade["tax"], second=expect_tax)
         self.assertEqual(first=second_trade["transaction_cost"], second=expect_transaction_cost)
-
+        #pdb.set_trace()
 
 
         # here is important and think why use settlement price rather the trade price
@@ -216,10 +271,12 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         print(expect_market_value_stock_settlement, stock_account.market_value)     
         print(expect_cash_stock_settlement, stock_account.total_cash)
         print(expect_total_value_stock_settlement, stock_account.total_value)
+        #pdb.set_trace()
         self.assertEqual(expect_market_value_stock_settlement, position1.market_value)
         self.assertEqual(expect_market_value_stock_settlement, stock_account.market_value)
         self.assertEqual(expect_cash_stock_settlement, stock_account.total_cash)
         self.assertEqual(expect_total_value_stock_settlement, stock_account.total_value)
+        
 
 
 
@@ -231,12 +288,13 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         expect_market_value_portfolio_settlement = expect_market_value_stock_settlement + expect_market_value_future_settlement
         expect_total_value_settlement_portfolio_2 = expect_total_value_stock_settlement + expect_total_value_future_settlement
 
-
+        #pdb.set_trace()
         print(expect_cash_portfolio_settlement,  portfolio.cash)
         print(expect_market_value_portfolio_settlement, portfolio.market_value)
         print(expect_total_value_settlement_portfolio_2, portfolio.total_value)   
         expect_reward = (expect_total_value_settlement_portfolio_2 / expect_total_value_portfolio_new) -1
         print(expect_reward, reward, portfolio.daily_returns)
+        #pdb.set_trace()
         self.assertEqual(expect_cash_portfolio_settlement, portfolio.cash)
         self.assertEqual(expect_market_value_portfolio_settlement, portfolio.market_value)
         self.assertEqual(expect_total_value_settlement_portfolio_2, portfolio.total_value)
@@ -248,6 +306,23 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         
         target_weight =  0.0
         to_submit_orders = order_target_weights({order_book_id:target_weight})
+        
+        
+        expect_deal_price = data_source.get_last_price(order_book_id = order_book_id , dt=third_trading_dt)
+        print("third date end price: {}".format(expect_deal_price)) #72.5
+        expect_quantity = 0  #allow not 100 times
+        to_trade_quantity = expect_quantity2
+        # #print((, expetrue_orderct_quantity))
+        expect_deal_money = expect_deal_price * to_trade_quantity
+ 
+        expect_commission_fee = expect_deal_money * commission_rate * commission_multiplier
+        expect_tax = expect_deal_money * tax_rate * tax_multiplier # no tax rate when buy
+        expect_transaction_cost = expect_commission_fee + expect_tax
+        
+        
+        
+        
+        
         state, reward, is_done, info = env.step(action=to_submit_orders)
         
         order = to_submit_orders[0]
@@ -255,16 +330,6 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         # if sell, allow the quantity is not 100 times
         print(true_order)
 
-
-        expect_deal_price = data_source.get_last_price(order_book_id = order_book_id , dt=third_trading_dt)
-        expect_quantity = true_order.quantity  #allow not 100 times
-        # #print((, expetrue_orderct_quantity))
-        expect_deal_money = expect_deal_price * expect_quantity
- 
-        expect_commission_fee = expect_deal_money * commission_rate * commission_multiplier
-        expect_tax = expect_deal_money * tax_rate * tax_multiplier # no tax rate when buy
-        expect_transaction_cost = expect_commission_fee + expect_tax
-        
         third_trade = context.tracker._trades[2]
         print(third_trade["order_book_id"], order_book_id)
         print(third_trade["trading_datetime"], second_trading_dt.strftime("%Y-%m-%d %H:%M:%S"))
@@ -272,6 +337,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         print(third_trade["commission"], expect_commission_fee)
         print(third_trade["tax"], expect_tax)
         print(third_trade["transaction_cost"], expect_transaction_cost)
+        #pdb.set_trace()
         self.assertEqual(first=third_trade["order_book_id"], second= order_book_id)
         self.assertEqual(first=third_trade["trading_datetime"], second = third_trading_dt.strftime("%Y-%m-%d %H:%M:%S"))
         self.assertEqual(first=third_trade["last_price"], second=expect_deal_price)
@@ -303,6 +369,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         print("---------------------")
         print(expect_cash_stock_settlement, stock_account.total_cash)
         print(expect_total_value_stock_settlement, stock_account.total_value)
+        #pdb.set_trace()
         self.assertEqual(expect_market_value_stock_settlement, position1.market_value)
         self.assertEqual(expect_market_value_stock_settlement, stock_account.market_value)
         self.assertEqual(expect_cash_stock_settlement, stock_account.total_cash)
@@ -325,6 +392,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         expect_reward = (expect_total_value_settlement_portfolio / expect_total_value_settlement_portfolio_2) -1
         print(expect_reward, reward, portfolio.daily_returns)
         print(portfolio.cash, portfolio.market_value, portfolio.total_value)
+        #pdb.set_trace()
         self.assertEqual(expect_cash_portfolio_settlement, portfolio.cash)
         self.assertEqual(expect_market_value_portfolio_settlement, portfolio.market_value)
         self.assertEqual(expect_total_value_settlement_portfolio, portfolio.total_value)

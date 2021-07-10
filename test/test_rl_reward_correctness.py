@@ -13,7 +13,11 @@ import pdb
 class TestOneObjectImplmentCorrection(unittest.TestCase):
     
     def setUp(self):
-        feature_df, price_s = create_toy_feature(order_book_ids_number=2, feature_number=3, start="2020-01-01", end="2020-01-11", random_seed=111)
+        #feature_df, price_s = create_toy_feature(order_book_ids_number=2, feature_number=3, start="2020-01-01", end="2020-01-11", random_seed=111)
+        feature_df, price_s = create_toy_feature(order_book_ids_number=1, feature_number=3, random_seed=111)
+        data_source = DataSource(feature_df=feature_df, price_s=price_s)
+        #order_book_ids  = data_source.get_available_order_book_ids() 
+        
         self.data_source = DataSource(feature_df=feature_df, price_s=price_s)
         
         self.order_book_ids  = self.data_source.get_available_order_book_ids() 
@@ -59,22 +63,24 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         first_trading_dt = self.trading_dts[0]
         self.order_book_id = self.order_book_ids[0]
         
-        
+        print("-------------first_trading_dt: {}----------".format(context.trading_dt))
         to_submit_orders = order_target_weights({self.order_book_id:0.5})
-        state, reward, is_done, info = self.env.step(action=to_submit_orders)
-        
-        
-        
         order = to_submit_orders[0] 
-
         expect_deal_price = self.data_source.get_last_price(order_book_id = self.order_book_id , dt=first_trading_dt)
         expect_deal_money = expect_deal_price * order.quantity
  
         expect_commission_fee = expect_deal_money * self.commission_rate * self.commission_multiplier
         expect_tax = 0 # no tax rate when buy
         expect_transaction_cost = expect_commission_fee + expect_tax
+
+        #pdb.set_trace()
+        state, reward, is_done, info = self.env.step(action=to_submit_orders)
+        
         
         first_trade = context.tracker._trades[0]
+        
+        
+        #pdb.set_trace()
         self.first_trade = first_trade
         self.assertEqual(first=first_trade["order_book_id"], second= self.order_book_id)
         self.assertEqual(first=first_trade["trading_datetime"], second = first_trading_dt.strftime("%Y-%m-%d %H:%M:%S"))
@@ -118,6 +124,7 @@ class TestOneObjectImplmentCorrection(unittest.TestCase):
         
         order = to_submit_orders[0]
         # this is a sell trade
+        #pdb.set_trace()
         self.assertEqual(first=order.side, second=SIDE.SELL)
         #
         second_trading_dt = self.trading_dts[1]
