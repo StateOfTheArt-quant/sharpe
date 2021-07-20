@@ -34,6 +34,8 @@ class TradingEnv(gym.Env):
         
         self._context = Context(look_backward_window=look_backward_window)
         
+        #set mode
+        self._context.set_mode(mode)
         #set data_source
         self._context.set_data_source(data_source)
         
