@@ -157,8 +157,12 @@ class Tracker(object):
     
     @property
     def bar_returns(self) -> pd.Series:
-        bar_returns_list = self._portfolio_forward_bar_returns 
-        bar_reutrns_s = pd.Series(bar_returns_list, index=self._context.available_trading_dts[:len(bar_returns_list)])
+        if self._context.mode == "rl":
+            bar_returns_list = self._portfolio_forward_bar_returns 
+            bar_reutrns_s = pd.Series(bar_returns_list, index=self._context.available_trading_dts[:len(bar_returns_list)])
+        else:
+            bar_returns_list = self._portfolio_current_bar_returns
+            bar_reutrns_s = pd.Series(bar_returns_list, index=self._context.available_trading_dts[:len(bar_returns_list)])
         return bar_reutrns_s 
 
     

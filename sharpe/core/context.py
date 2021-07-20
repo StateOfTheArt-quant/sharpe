@@ -27,6 +27,7 @@ class Context(object):
         self.calendar_dt = None  
         self.trading_dt = None  
         self.frequency = None
+        self.mode = None
 
     @classmethod
     def get_instance(cls):
@@ -36,8 +37,10 @@ class Context(object):
         if Context._instance is None:
             raise RuntimeError(("Context has not been created. Please Use `Context.get_instance()` after sharpe init"))
         return Context._instance
-
     
+    def set_mode(self, mode):
+        self.mode = mode
+
     def set_data_source(self, data_source):
         self.data_source = data_source
     
