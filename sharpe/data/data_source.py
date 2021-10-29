@@ -34,8 +34,8 @@ class DataSource(object):
         print("the NaN value statistic")
         print(nan_groupby_status)
         
-        self.order_book_ids_index = self.multi_index.levels[0].unique()
-        self.trading_dts_index = self.multi_index.levels[1].unique().sort_values()
+        self.order_book_ids_index = self.index.get_level_values(0).unique()
+        self.trading_dts_index = self.index.get_level_values(1).unique().sort_values()
         if not isinstance(self.trading_dts_index, pd.DatetimeIndex):
             print("the level 1 index should be pandas.DatetimeIndex")
         self.feature_list = feature_df.columns.to_list()
