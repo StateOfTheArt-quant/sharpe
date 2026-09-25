@@ -4,15 +4,22 @@
 name: unit-testing
 
 on:
+  # Tags only: merging a pull request runs no CI -- the organisation shares one
+  # runner, and a tag is the point where the cost is worth paying.
+  # workflow_dispatch stays so a branch can be checked on demand.
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags: ['**']
+  workflow_dispatch:
+    inputs:
+      runner_labels:
+        description: JSON array of runner labels; empty uses RUNNER_LABELS
+        type: string
+        default: ''
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(inputs.runner_labels || vars.RUNNER_LABELS || '["self-hosted","Linux","X64"]') }}
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
